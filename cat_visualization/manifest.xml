@@ -1,0 +1,25 @@
+<package>
+  <description brief="cat_visualization">
+
+     Constraint-Aware Teleop visualization.
+
+  </description>
+  <author>Adam Leeper</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/assited_teleop</url>
+  <depend package="roscpp"/>
+  <depend package="urdf"/>
+  <depend package="srdf"/>
+  <depend package="moveit_visualization_ros"/>
+  <depend package="cat_planners"/> 
+  <depend package="ompl_interface_ros"/> 
+  
+
+  <export>
+      <cpp cflags="-I${prefix}/include `rosboost-cfg --cflags`" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lcat_visualization"/>
+  </export>
+
+</package>
+
+
