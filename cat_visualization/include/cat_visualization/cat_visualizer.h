@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ASSISTED_TELEOP_H_
-#define _ASSISTED_TELEOP_H_
+#ifndef _CAT_VISUALIZER_H_
+#define _CAT_VISUALIZER_H_
 
 #include <ros/ros.h>
 #include <moveit_visualization_ros/interactive_object_visualization_qt_wrapper.h>
@@ -36,7 +36,7 @@
 #include <moveit_visualization_ros/planning_group_selection_menu.h>
 #include <moveit_visualization_ros/planner_selection_menu.h>
 #include <moveit_visualization_ros/planning_scene_file_menu.h>
-#include <assisted_teleop/teleop_visualization_qt_wrapper.h>
+#include <cat_visualization/teleop_visualization_qt_wrapper.h>
 #include <moveit_visualization_ros/attach_object_addition_dialog.h>
 #include <planning_scene_monitor_tools/kinematic_state_joint_state_publisher.h>
 #include <trajectory_execution_manager/trajectory_execution_manager.h>
@@ -51,7 +51,7 @@ namespace rviz
     class VisualizationManager;
 }
 
-namespace assisted_teleop {
+namespace cat_visualization {
 
 class AssistedTeleop {
 

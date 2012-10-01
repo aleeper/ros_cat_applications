@@ -32,10 +32,8 @@
 #ifndef _TELEOP_VISUALIZATION_H_
 #define _TELEOP_VISUALIZATION_H_
 
-#include <local_planners/linear_joint_stepper.h>
 
 #include <moveit_visualization_ros/planning_visualization.h>
-
 #include <moveit_visualization_ros/kinematics_start_goal_visualization.h>
 #include <moveit_visualization_ros/joint_trajectory_visualization.h>
 #include <moveit_visualization_ros/collision_visualization.h>

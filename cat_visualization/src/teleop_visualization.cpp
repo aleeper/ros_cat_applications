@@ -30,7 +30,7 @@
 // Author: Adapted from planning_visualization.cpp by Adam Leeper
 
 #include <moveit_visualization_ros/interactive_marker_helper_functions.h>
-#include <assisted_teleop/teleop_visualization.h>
+#include <cat_visualization/teleop_visualization.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <kinematic_constraints/utils.h>
 #include <planning_models/conversions.h>

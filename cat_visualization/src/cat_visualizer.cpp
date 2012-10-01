@@ -33,7 +33,7 @@
 #include <QHBoxLayout>
 #include <QMenuBar>
 
-#include <assisted_teleop/assisted_teleop.h>
+#include <cat_visualization/cat_visualizer.h>
 #include <moveit_visualization_ros/primitive_object_addition_dialog.h>
 #include <moveit_visualization_ros/mesh_object_addition_dialog.h>
 #include <collision_distance_field_ros/hybrid_collision_robot_ros.h>
@@ -47,11 +47,11 @@
 #include <rviz/default_plugin/marker_display.h>
 #include <rviz/default_plugin/interactive_marker_display.h>
 
-static const std::string VIS_TOPIC_NAME = "assisted_teleop_visualization";
+static const std::string VIS_TOPIC_NAME = "cat_visualization";
 
 
 
-namespace assisted_teleop {
+namespace cat_visualization {
 
   using namespace moveit_visualization_ros;
 

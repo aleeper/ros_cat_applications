@@ -1,9 +1,9 @@
 #include <QApplication>
 #include <ros/ros.h>
-#include <assisted_teleop/assisted_teleop.h>
+#include <cat_visualization/cat_visualizer.h>
 
 //using namespace moveit_visualization_ros;
-using namespace assisted_teleop;
+using namespace cat_visualization;
 
 AssistedTeleop* at_;
 

@@ -29,7 +29,7 @@
 
 // Author: Adam Leeper
 
-#include <assisted_teleop/teleop_visualization_qt_wrapper.h>
+#include <cat_visualization/teleop_visualization_qt_wrapper.h>
 
 #include <QMetaType>
 

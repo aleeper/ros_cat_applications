@@ -42,9 +42,9 @@ rosbuild_add_library(${PROJECT_NAME}
   src/teleop_visualization_qt_wrapper.cpp
   src/cat_visualizer.cpp
 
-  include/assisted_teleop/teleop_visualization.h
-  include/assisted_teleop/teleop_visualization_qt_wrapper.h
-  include/assisted_teleop/cat_visualizer.h
+  include/cat_visualization/teleop_visualization.h
+  include/cat_visualization/teleop_visualization_qt_wrapper.h
+  include/cat_visualization/cat_visualizer.h
 
   ${MOC_FILES}
   )

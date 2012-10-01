@@ -1,0 +1,26 @@
+<package>
+  <description brief="haptic_sandbox">
+
+     haptic_sandbox
+
+  </description>
+  <author>Adam Leeper</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/haptic_sandbox</url>
+  
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="tf"/>
+  <depend package="pcl"/>
+  <depend package="chai3d_a4"/>
+  <depend package="hydra"/>
+
+  <export>
+    <cpp  cflags="-I${prefix}/include  -I${prefix}/src" 
+          lflags="-L${prefix}/lib -lhaptic_sandbox "/>
+  </export>
+</package>
+
+

@@ -36,7 +36,7 @@
 #include <QString>
 
 //#include <moveit_visualization_ros/planning_visualization_qt_wrapper.h>
-#include <assisted_teleop/teleop_visualization.h>
+#include <cat_visualization/teleop_visualization.h>
  
 namespace moveit_visualization_ros
 {
