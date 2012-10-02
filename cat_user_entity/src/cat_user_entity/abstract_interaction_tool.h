@@ -1,9 +1,9 @@
-#ifndef _ABSTRACT_INTERACTION_TOOL_H_
-#define _ABSTRACT_INTERACTION_TOOL_H_
+#ifndef _CAT_ABSTRACT_INTERACTION_TOOL_H_
+#define _CAT_ABSTRACT_INTERACTION_TOOL_H_
 
 
-#include <haptic_sandbox/tf_scenegraph_object.h>
-#include <haptic_sandbox/abstract_handle.h>
+#include <cat_user_entity/tf_scenegraph_object.h>
+#include <cat_user_entity/abstract_handle.h>
 
 #include <Eigen/Geometry>
 

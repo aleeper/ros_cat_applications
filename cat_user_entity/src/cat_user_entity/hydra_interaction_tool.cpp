@@ -1,6 +1,6 @@
 
-#include <haptic_sandbox/hydra_interaction_tool.h>
-#include <hydra/CalibPaddle.h>
+#include <cat_user_entity/hydra_interaction_tool.h>
+#include <razer_hydra/Hydra.h>
 
 #include <tf/tf.h>
 #include <Eigen/Geometry>
@@ -23,7 +23,7 @@ void HydraInteractionTool::init()
 //    setQuaternion(tf::createQuaternionFromYaw(M_PI)*tf::createQuaternionFromRPY(0, 0.4, 0));
 
     ros::NodeHandle nh;
-    hydra_sub_ = nh.subscribe<hydra::Calib>("hydra_calib", 1, boost::bind(&HydraInteractionTool::updateFromMsg, this, _1));
+    hydra_sub_ = nh.subscribe<razer_hydra::Hydra>("hydra_calib", 1, boost::bind(&HydraInteractionTool::updateFromMsg, this, _1));
 
 }
 
@@ -31,10 +31,10 @@ void HydraInteractionTool::init()
 // PROTECTED FUNCTIONS LIVE UNDER HERE
 /////////////////////////////////////////////////////////////////////
 
-void HydraInteractionTool::updateFromMsg(const hydra::CalibConstPtr &calib)
+void HydraInteractionTool::updateFromMsg(const razer_hydra::HydraConstPtr &calib)
 {
     ROS_DEBUG_NAMED("hydra", "Got hydra update!");
-    hydra::CalibPaddle paddle = calib->paddles[0];
+    razer_hydra::HydraPaddle paddle = calib->paddles[0];
 
     // Update pose info
     tf::Transform interaction_handle;

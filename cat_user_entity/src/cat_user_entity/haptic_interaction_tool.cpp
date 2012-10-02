@@ -1,6 +1,6 @@
 
-#include <haptic_sandbox/haptic_interaction_tool.h>
-#include <conversions/tf_chai.h>
+#include <cat_user_entity/haptic_interaction_tool.h>
+#include <chai3d_conversions/tf_chai.h>
 
 #include <tf/tf.h>
 #include <Eigen/Geometry>

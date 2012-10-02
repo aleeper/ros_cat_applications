@@ -1,9 +1,9 @@
-#ifndef _HAPTIC_INTERACTION_TOOL_H_
-#define _HAPTIC_INTERACTION_TOOL_H_
+#ifndef _CAT_HAPTIC_INTERACTION_TOOL_H_
+#define _CAT_HAPTIC_INTERACTION_TOOL_H_
 
-#include <haptic_sandbox/abstract_interaction_tool.h>
+#include <cat_user_entity/abstract_interaction_tool.h>
 
-#include <conversions/tf_chai.h>
+#include <chai3d_conversions/tf_chai.h>
 
 #include <Eigen/Geometry>
 

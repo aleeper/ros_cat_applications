@@ -1,5 +1,5 @@
 
-#include <conversions/tf_chai.h>
+#include <chai3d_conversions/tf_chai.h>
 
 
 namespace tf

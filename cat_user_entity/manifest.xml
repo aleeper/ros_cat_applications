@@ -1,13 +1,13 @@
 <package>
-  <description brief="haptic_sandbox">
+  <description brief="cat_user_entity">
 
-     haptic_sandbox
+     Constraint-Aware Teleop user entity.
 
   </description>
   <author>Adam Leeper</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/haptic_sandbox</url>
+  <url>http://ros.org/wiki/cat_user_entity</url>
   
   <depend package="roscpp"/>
   <depend package="std_msgs"/>
@@ -15,11 +15,11 @@
   <depend package="tf"/>
   <depend package="pcl"/>
   <depend package="chai3d_a4"/>
-  <depend package="hydra"/>
+  <depend package="razer_hydra"/>
 
   <export>
     <cpp  cflags="-I${prefix}/include  -I${prefix}/src" 
-          lflags="-L${prefix}/lib -lhaptic_sandbox "/>
+          lflags="-L${prefix}/lib -lcat_user_Entity "/>
   </export>
 </package>
 

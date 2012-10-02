@@ -30,7 +30,7 @@
 // author: Adam Leeper
 
 
-#include <haptic_sandbox/user_entity.h>
+#include <cat_user_entity/user_entity.h>
 #include <ros/ros.h>
 
 
