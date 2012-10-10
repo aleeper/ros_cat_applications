@@ -1,11 +1,12 @@
 
 
 #include <cat_user_entity/tf_scenegraph_object.h>
+#include <visualization_msgs/MarkerArray.h>
 
 namespace tf {
 
-SceneGraphNode::SceneGraphNode(const std::string &frame_id, tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
-    : tfl_(tfl), tfb_(tfb), parent_(0)
+SceneGraphNode::SceneGraphNode(const std::string &frame_id, tf::TransformListener *tfl, tf::TransformBroadcaster *tfb, ros::Publisher* pub_markers)
+  : tfl_(tfl), tfb_(tfb), pub_markers_(pub_markers), parent_(0)
 {
     transform_.child_frame_id_ = frame_id;
     transform_.setIdentity();
@@ -25,9 +26,9 @@ void SceneGraphNode::setTransform(const tf::Transform &transform)
     transform_.setRotation(transform.getRotation());
 }
 
-tf::Vector3     SceneGraphNode::getPosition() const       { return transform_.getOrigin();   }
-tf::Quaternion  SceneGraphNode::getQuaternion() const     { return transform_.getRotation(); }
-tf::Transform   SceneGraphNode::getTransform() const      { return transform_; }
+tf::Vector3           SceneGraphNode::getPosition() const   { return transform_.getOrigin();   }
+tf::Quaternion        SceneGraphNode::getQuaternion() const { return transform_.getRotation(); }
+const tf::StampedTransform&  SceneGraphNode::getTransform() const  { return transform_; }
 
 
 tf::SceneGraphNode* SceneGraphNode::accessChild(const std::string &key)
@@ -120,7 +121,7 @@ void SceneGraphNode::publishTransformTree(const ros::Time now)
     tfb_->sendTransform(transforms);
 }
 
-void SceneGraphNode::addTransformsToVector(const ros::Time now, std::vector<tf::StampedTransform> &transforms)
+void SceneGraphNode::addTransformsToVector(const ros::Time now, std::vector<tf::StampedTransform>& transforms)
 {
     // Add this node to the list
     transform_.stamp_ = now;
@@ -134,31 +135,44 @@ void SceneGraphNode::addTransformsToVector(const ros::Time now, std::vector<tf::
     }
 }
 
-tf::StampedTransform SceneGraphNode::getTransform()
+// Default implementation does nothing!
+void SceneGraphNode::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array)
 {
-    return transform_;
+
+
 }
 
-void SceneGraphNode::drawSelf()
+void SceneGraphNode::addMarkersToArray(const ros::Time now, visualization_msgs::MarkerArray& array)
 {
+  // Add the markers for this node to the array
+  drawSelf(now, array);
 
-
+  // Recursively go through children
+  std::map<std::string, tf::SceneGraphNode*>::iterator it = children_.begin();
+  for( ; it != children_.end(); it++)
+  {
+      it->second->addMarkersToArray(now, array);
+  }
 }
 
 void SceneGraphNode::publishMarkers( const bool &recursive)
 {
-    //
-    drawSelf();
+  if(!pub_markers_) return;
 
-    if(recursive)
-    {
-        std::map<std::string, tf::SceneGraphNode*>::iterator it = children_.begin();
-        for( ; it != children_.end(); it++)
-        {
-            it->second->publishMarkers(recursive);
-        }
-    }
-    // Default implementation does nothing because I suppose we could have different geometry representations.
+  visualization_msgs::MarkerArray array;
+  ros::Time now = ros::Time::now();
+
+  if(recursive)
+  {
+    addMarkersToArray(now, array);
+  }
+  else
+  {
+    drawSelf(now, array);
+  }
+
+  pub_markers_->publish(array);
+
 }
 
 /////////////////////////////////////////////////////////////////////

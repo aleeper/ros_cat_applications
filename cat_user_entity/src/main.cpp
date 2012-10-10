@@ -31,6 +31,9 @@
 
 
 #include <cat_user_entity/user_entity.h>
+#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <ros/ros.h>
 
 
@@ -51,7 +54,8 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     tf::TransformListener tfl;
     tf::TransformBroadcaster tfb;
-    something::UserEntity *user = new something::UserEntity("base_link", "user1_", &tfl, &tfb);
+    ros::Publisher pub_markers = nh.advertise<visualization_msgs::MarkerArray>("user_entity_markers", 10);
+    something::UserEntity *user = new something::UserEntity("base_link", "user1_", &tfl, &tfb, &pub_markers);
     user->setPosition(tf::Vector3(-0.2,0,0.2));
     ros::Duration(1.0).sleep();
 

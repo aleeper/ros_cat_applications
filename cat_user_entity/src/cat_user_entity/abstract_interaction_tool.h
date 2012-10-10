@@ -22,7 +22,10 @@ public:
     // Constructor
       AbstractInteractionTool(const std::string &frame_id,
                  tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
-          : SceneGraphNode(frame_id, tfl, tfb)
+          : SceneGraphNode(frame_id, tfl, tfb),
+            handle_(0),
+            k_linear_(0),
+            k_angular_(0)
     {
         init();
     }
@@ -70,6 +73,12 @@ public:
 //    // Set the gripper force on the tool
 //    virtual void setToolGripperForce(const float &force);
 
+    virtual void attachHandleToTfFrame(const std::string& attached_frame_id, const tf::Pose& attached_frame_pose)
+    {
+      attached_frame_id_ = attached_frame_id;
+      attached_frame_T_grasp_ = attached_frame_pose;
+    }
+
 
 protected: 
 // Methods
@@ -89,6 +98,10 @@ protected:
         button_state_[index] = state;
     }
 
+    virtual void updateVirtualCoupling();
+
+    virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array);
+
 //    virtual void updateDevice()
 //    {
 //      // Here is where, for example, we:
@@ -101,11 +114,16 @@ protected:
 
 // Members
 
-    something::AbstractHandle *handle_;
+  something::AbstractHandle *handle_;
 
   Vector3 last_tool_force_;
   Vector3 last_tool_torque_;
 
+  std::string attached_frame_id_;
+  tf::Pose attached_frame_T_grasp_;
+
+  float k_linear_;
+  float k_angular_;
   std::vector<bool> button_state_;
 
 };

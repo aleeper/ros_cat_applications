@@ -84,6 +84,8 @@ AssistedTeleop::AssistedTeleop() :
         if(publish_root_transform) {
             boost::thread publisher_thread(boost::bind(&AssistedTeleop::publisherFunction, this, false));
         }
+        planning_scene_monitor_->startWorldGeometryMonitor();
+        planning_scene_monitor_->startSceneMonitor();
         planning_scene_monitor_->startStateMonitor();
     }
 

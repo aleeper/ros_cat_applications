@@ -24,7 +24,8 @@ public:
                                                  tf::TransformBroadcaster *tfb, PaddleSide side)
         : AbstractInteractionTool(frame_id, tfl, tfb),
           workspace_radius_(0.5),
-          paddle_side_(side)
+          paddle_side_(side),
+          paddle_index_(0)
     {
         // Finish other intialization stuff.
         init();
@@ -35,8 +36,12 @@ public:
     void init();
 
 
+    void setPaddleSide(HydraInteractionTool::PaddleSide side);
+
 protected:
 // Methods
+
+    void updatePaddleIndex();
 
     void updateFromMsg(const razer_hydra::HydraConstPtr &calib);
 
@@ -45,6 +50,7 @@ protected:
     ros::Subscriber hydra_sub_;
 
     PaddleSide paddle_side_;
+    unsigned int paddle_index_;
 
 };
 

@@ -1,6 +1,9 @@
 
 #include <cat_user_entity/user_entity.h>
 
+#include <interaction_cursor_msgs/InteractionCursorUpdate.h>
+#include <interaction_cursor_msgs/InteractionCursorFeedback.h>
+
 
 
 namespace something {
@@ -24,6 +27,7 @@ void UserEntity::update()
 
   ros::Time now = ros::Time::now();
   publishTransformTree(now);
+
 
   publishMarkers(true);
 }
@@ -65,5 +69,27 @@ void  UserEntity::updateClutch()
     setTransform(world_to_user);
   }
 }
+
+//void UserEntity::sendCursorEvent()
+//{
+//  interaction_cursor_msgs::InteractionCursorUpdate up;
+//  up.button_state = last_cursor_button_state_;
+//  tf::poseStampedTFToMsg(right_->getTransform(), up.pose);
+//}
+
+//void UserEntity::receiveCursorFeedback(const interaction_cursor_msgs::InteractionCursorFeedbackConstPtr& fb)
+//{
+//  switch(fb->event_type)
+//  {
+//  case(interaction_cursor_msgs::InteractionCursorFeedback::GRABBED):
+//  {
+//    attachToTfFrame(fb->pose);
+//    break;
+//  }
+
+//  default:
+//    break;
+//  }
+//}
 
 } // namespace

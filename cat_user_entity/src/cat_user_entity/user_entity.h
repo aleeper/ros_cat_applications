@@ -23,10 +23,11 @@ public:
 
   // Constructor
   // Must be defined in the header due to library issues in CHAI3D.
-  UserEntity(const std::string &tf_parent_frame_id, const std::string &frame_prefix,
-             tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
-    : SceneGraphNode(frame_prefix + "frame", tfl, tfb),
-      prefix_(frame_prefix), grabbing_(false)
+  UserEntity(const std::string& tf_parent_frame_id, const std::string& frame_prefix,
+             tf::TransformListener* tfl, tf::TransformBroadcaster* tfb, ros::Publisher* pub_markers)
+    : SceneGraphNode(frame_prefix + "frame", tfl, tfb, pub_markers),
+      prefix_(frame_prefix),
+      grabbing_(false)
   {
     ros::NodeHandle nh;
     update_timer_ = nh.createTimer(ros::Duration(0.01), boost::bind(&UserEntity::update, this));
@@ -42,15 +43,16 @@ public:
   {
     printf("Initializing user entity!\n");
     right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_RIGHT);
-    right_->setPosition(tf::Vector3(0, -0.5, 0));
+    right_->setPosition(tf::Vector3(0, 0, 0));
     addChild(right_);
 
     left_ =  new something::ManipulatorNode(prefix_ + "left_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_LEFT);
-    left_->setPosition(tf::Vector3(0, 0.5, 0));
+    left_->setPosition(tf::Vector3(0, 0, 0));
     addChild(left_);
 
     view_ = new something::CameraNode(prefix_ + "camera", tfl_, tfb_);
-    view_->setPosition(tf::Vector3(-1, 0, 0));
+    view_->setPosition(tf::Vector3(-2, 0, 0.5));
+    //view_->setQuaternion(tf::createQuaternionFromRPY(0.0, 0.5, 0.0));
     addChild(view_);
 
     grab_start_world_to_handle_.setIdentity();

@@ -25,16 +25,30 @@ void HydraInteractionTool::init()
     ros::NodeHandle nh;
     hydra_sub_ = nh.subscribe<razer_hydra::Hydra>("hydra_calib", 1, boost::bind(&HydraInteractionTool::updateFromMsg, this, _1));
 
+    updatePaddleIndex();
+}
+
+void HydraInteractionTool::setPaddleSide(HydraInteractionTool::PaddleSide side)
+{
+  paddle_side_ = side;
+  updatePaddleIndex();
 }
 
 /////////////////////////////////////////////////////////////////////
 // PROTECTED FUNCTIONS LIVE UNDER HERE
 /////////////////////////////////////////////////////////////////////
 
+void HydraInteractionTool::updatePaddleIndex()
+{
+  if(paddle_side_ == HYDRA_RIGHT) paddle_index_ = 0;
+  else if(paddle_side_ == HYDRA_LEFT) paddle_index_ = 1;
+}
+
 void HydraInteractionTool::updateFromMsg(const razer_hydra::HydraConstPtr &calib)
 {
     ROS_DEBUG_NAMED("hydra", "Got hydra update!");
-    razer_hydra::HydraPaddle paddle = calib->paddles[0];
+
+    razer_hydra::HydraPaddle paddle = calib->paddles[paddle_index_];
 
     // Update pose info
     tf::Transform interaction_handle;
