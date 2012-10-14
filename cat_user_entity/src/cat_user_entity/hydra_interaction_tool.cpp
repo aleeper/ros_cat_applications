@@ -25,6 +25,11 @@ void HydraInteractionTool::init()
     ros::NodeHandle nh;
     hydra_sub_ = nh.subscribe<razer_hydra::Hydra>("hydra_calib", 1, boost::bind(&HydraInteractionTool::updateFromMsg, this, _1));
 
+    setToolButtonCount(7);
+    // TODO this should come from a config file!
+    button_name_map_["click"] = 0;
+    button_name_map_["menu"] = 1;
+
     updatePaddleIndex();
 }
 

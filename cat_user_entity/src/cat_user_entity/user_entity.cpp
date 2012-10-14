@@ -23,13 +23,20 @@ void UserEntity::attachCoupling()
 
 void UserEntity::update()
 {
+
+  right_->timerUpdate();
+  left_->timerUpdate();
+
   updateClutch();
 
+  // Should this happen now or at the end?
   ros::Time now = ros::Time::now();
   publishTransformTree(now);
-
-
   publishMarkers(true);
+
+
+  //
+
 }
 
 void UserEntity::changeParentFrameId(const std::string &parent_id)

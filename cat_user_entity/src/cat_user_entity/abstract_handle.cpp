@@ -10,9 +10,8 @@ void AbstractHandle::drawSelf(const ros::Time now, visualization_msgs::MarkerArr
   visualization_msgs::Marker marker;
   marker.header.frame_id = getFrameId();
   marker.header.stamp = now;
-  //tf::Transform T = getTransform();
-  //tf::pointTFToMsg(T.getOrigin(), marker.pose.position);
-  //tf::quaternionTFToMsg(T.getRotation(), marker.pose.orientation);
+  // Transform is identity because we are in this frame!
+  marker.pose.orientation.w = 1;
 
   marker.action = marker.ADD;
   marker.ns = getFrameId();
@@ -23,9 +22,9 @@ void AbstractHandle::drawSelf(const ros::Time now, visualization_msgs::MarkerArr
 
 
   marker.type = marker.ARROW;
-  marker.scale.x = 1;
-  marker.scale.y = 0.1;
-  marker.scale.z = 0.1;
+  marker.scale.x = 0.2;
+  marker.scale.y = 0.04;
+  marker.scale.z = 0.04;
 
   array.markers.push_back(marker);
 }

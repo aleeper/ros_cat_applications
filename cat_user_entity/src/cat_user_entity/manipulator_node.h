@@ -94,6 +94,11 @@ public:
       return tool_->getToolButtonState(index);
     }
 
+    virtual void timerUpdate()
+    {
+      tool_->timerUpdate();
+    }
+
 
 protected:
     // Methods
