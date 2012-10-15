@@ -51,7 +51,7 @@ public:
     addChild(left_);
 
     view_ = new something::CameraNode(prefix_ + "camera", tfl_, tfb_);
-    view_->setPosition(tf::Vector3(-2, 0, 0.5));
+    view_->setPosition(tf::Vector3(-0.75, 0, 0.2));
     //view_->setQuaternion(tf::createQuaternionFromRPY(0.0, 0.5, 0.0));
     addChild(view_);
 

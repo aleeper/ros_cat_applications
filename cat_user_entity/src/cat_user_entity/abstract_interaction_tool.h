@@ -27,6 +27,8 @@ public:
                  tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
           : SceneGraphNode(frame_id, tfl, tfb),
             handle_(0),
+            last_tool_force_(tf::Vector3(0,0,0)),
+            last_tool_torque_(tf::Vector3(0,0,0)),
             attached_(false),
             k_linear_(0),
             k_angular_(0)
@@ -65,7 +67,8 @@ public:
     bool getToolButtonState(const unsigned int &index) const
     {
         if(index >= getToolButtonCount()) return false;
-        return button_state_[index] && !attached_; // TODO this will break camera movement...
+        //if(attached_) ROS_INFO("Currently attached, lieing to parent.");
+        return button_state_[index] && !attached_;
     }
 
     // Get the number of buttons available on the tool.
@@ -98,43 +101,17 @@ public:
 protected: 
 // Methods
 
-    void receiveInteractionCursorFeedback(const interaction_cursor_msgs::InteractionCursorFeedbackConstPtr& icf_cptr)
-    {
-
-      switch(icf_cptr->event_type)
-      {
-
-      case interaction_cursor_msgs::InteractionCursorFeedback::NONE:
-        attached_frame_id_ = icf_cptr->pose.header.frame_id;
-        tf::poseMsgToTF(icf_cptr->pose.pose, attached_frame_T_grasp_);
-        attachment_type_ = icf_cptr->attachment_type;
-        attached_ = false;
-        break;
-      case interaction_cursor_msgs::InteractionCursorFeedback::GRABBED:
-        attached_frame_id_ = icf_cptr->pose.header.frame_id;
-        tf::poseMsgToTF(icf_cptr->pose.pose, attached_frame_T_grasp_);
-        attachment_type_ = icf_cptr->attachment_type;
-      case interaction_cursor_msgs::InteractionCursorFeedback::KEEP_ALIVE:
-        attached_ = true;
-        break;
-      case interaction_cursor_msgs::InteractionCursorFeedback::RELEASED:
-      case interaction_cursor_msgs::InteractionCursorFeedback::LOST_GRASP:
-        attached_ = false;
-        break;
-      default:
-        break;
-      }
-
-    }
+    virtual void receiveInteractionCursorFeedback(const interaction_cursor_msgs::InteractionCursorFeedbackConstPtr& icf_cptr);
 
     // Used to initialize the button storage
-    void setToolButtonCount(const unsigned int &count)
+    virtual void setToolButtonCount(const unsigned int &count)
     {
-        button_state_.resize(count, false);
-        button_transition_.resize(count, LOW);
+      ROS_INFO("Setting tool button count to %d", count);
+      button_state_.resize(count, false);
+      button_transition_.resize(count, LOW);
     }
 
-    void setToolButtonState(const size_t &index, const bool &state)
+    virtual void setToolButtonState(const size_t &index, const bool &state)
     {
         if(index >= button_state_.size())
         {

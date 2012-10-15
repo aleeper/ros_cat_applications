@@ -23,16 +23,16 @@ void UserEntity::attachCoupling()
 
 void UserEntity::update()
 {
-
-  right_->timerUpdate();
-  left_->timerUpdate();
+  if(right_) right_->timerUpdate();
+  if(left_) left_->timerUpdate();
 
   updateClutch();
 
-  // Should this happen now or at the end?
+  // Should this happen at beginning or at the end? (or both?)
   ros::Time now = ros::Time::now();
   publishTransformTree(now);
   publishMarkers(true);
+
 
 
   //

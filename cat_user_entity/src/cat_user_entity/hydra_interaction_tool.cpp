@@ -45,8 +45,8 @@ void HydraInteractionTool::setPaddleSide(HydraInteractionTool::PaddleSide side)
 
 void HydraInteractionTool::updatePaddleIndex()
 {
-  if(paddle_side_ == HYDRA_RIGHT) paddle_index_ = 0;
-  else if(paddle_side_ == HYDRA_LEFT) paddle_index_ = 1;
+  if(paddle_side_ == HYDRA_RIGHT) paddle_index_ = razer_hydra::Hydra::RIGHT;
+  else if(paddle_side_ == HYDRA_LEFT) paddle_index_ = razer_hydra::Hydra::LEFT;
 }
 
 void HydraInteractionTool::updateFromMsg(const razer_hydra::HydraConstPtr &calib)

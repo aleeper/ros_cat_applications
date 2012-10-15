@@ -13,8 +13,8 @@ class HydraInteractionTool: public AbstractInteractionTool{
 public:
 
   enum PaddleSide {
-    HYDRA_RIGHT = 27,
-    HYDRA_LEFT
+    HYDRA_LEFT = 0,
+    HYDRA_RIGHT = 1
   };
 
   // Methods only!

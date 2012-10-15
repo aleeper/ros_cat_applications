@@ -17,8 +17,16 @@ void AbstractInteractionTool::timerUpdate()
   if(button_transition_[button_name_map_["click"]] == HIGH)        update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::KEEP_ALIVE;
   if(button_transition_[button_name_map_["click"]] == LOW_TO_HIGH)
   {
-    update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::GRAB;
-    attached_ = true;
+    if(attached_frame_id_ != "")
+    {
+      ROS_INFO("Attaching to frame [%s]", attached_frame_id_.c_str());
+      update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::GRAB;
+      attached_ = true;
+    }
+    else
+    {
+      //ROS_INFO("Tried to grab when the attached_frame_id_ was invalid!");
+    }
   }
   if(button_transition_[button_name_map_["click"]] == HIGH_TO_LOW) update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::RELEASE;
   if(button_transition_[button_name_map_["click"]] == LOW)         update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::NONE;
@@ -31,8 +39,8 @@ void AbstractInteractionTool::timerUpdate()
 
 void AbstractInteractionTool::updateVirtualCoupling()
 {
-  // Skip this if we aren't grabbing anything...
-  if(attached_frame_id_ == "") return;
+  // Skip this if we aren't grabbing anything with an associated control frame...
+  if(attached_frame_id_ == "" || attached_frame_id_ == "no_frame") return;
 
   // Make sure we are doing all calculations in the tool (e.g. device) frame.
   tf::StampedTransform tool_T_handle_stamped = handle_->getTransform();
@@ -97,6 +105,35 @@ void AbstractInteractionTool::drawSelf(const ros::Time now, visualization_msgs::
   }
 }
 
+void AbstractInteractionTool::receiveInteractionCursorFeedback(const interaction_cursor_msgs::InteractionCursorFeedbackConstPtr& icf_cptr)
+{
+
+  attached_frame_id_ = icf_cptr->pose.header.frame_id;
+  tf::poseMsgToTF(icf_cptr->pose.pose, attached_frame_T_grasp_);
+  attachment_type_ = icf_cptr->attachment_type;
+
+  switch(icf_cptr->event_type)
+  {
+//  case interaction_cursor_msgs::InteractionCursorFeedback::NONE:
+//    //attached_ = false;
+//    break;
+//  case interaction_cursor_msgs::InteractionCursorFeedback::GRABBED:
+//    attached_frame_id_ = icf_cptr->pose.header.frame_id;
+//    tf::poseMsgToTF(icf_cptr->pose.pose, attached_frame_T_grasp_);
+//    attachment_type_ = icf_cptr->attachment_type;
+//  case interaction_cursor_msgs::InteractionCursorFeedback::KEEP_ALIVE:
+//    //attached_ = true;
+//    break;
+  case interaction_cursor_msgs::InteractionCursorFeedback::RELEASED:
+  case interaction_cursor_msgs::InteractionCursorFeedback::LOST_GRASP:
+    ROS_INFO("Received RELEASED or LOST_GRASP feedback!");
+    attached_ = false;
+    break;
+  default:
+    break;
+  }
+}
+
 void AbstractInteractionTool::recordButtonTransitions()
 {
   if(button_state_.size() != button_transition_.size())
@@ -109,10 +146,11 @@ void AbstractInteractionTool::recordButtonTransitions()
   {
     bool now = button_state_[i];
     bool previous = (button_transition_[i] == HIGH) || (button_transition_[i] == LOW_TO_HIGH);
-    if(  now && !previous )  button_transition_[i] = LOW_TO_HIGH;
-    if(  now &&  previous )  button_transition_[i] = HIGH;
-    if( !now &&  previous )  button_transition_[i] = HIGH_TO_LOW;
-    if( !now && !previous )  button_transition_[i] = LOW;
+    if     (  now && !previous )  button_transition_[i] = LOW_TO_HIGH;
+    else if(  now &&  previous )  button_transition_[i] = HIGH;
+    else if( !now &&  previous )  button_transition_[i] = HIGH_TO_LOW;
+    else if( !now && !previous )  button_transition_[i] = LOW;
+    //if(i == 0)  ROS_INFO("now = %d, previous = %d, transition = %d", now, previous, button_transition_[i]);
   }
 }
 
