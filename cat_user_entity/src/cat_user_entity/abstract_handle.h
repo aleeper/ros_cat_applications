@@ -30,7 +30,7 @@ public:
 //        addChild(handle_);
     }
 
-    virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array);
+    virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action);
 
 
 protected:

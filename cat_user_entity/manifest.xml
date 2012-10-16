@@ -20,7 +20,7 @@
 
   <export>
     <cpp  cflags="-I${prefix}/include  -I${prefix}/src" 
-          lflags="-L${prefix}/lib -lcat_user_Entity "/>
+          lflags="-L${prefix}/lib -lcat_user_entity -lchai3d_conversions "/>
   </export>
 </package>
 

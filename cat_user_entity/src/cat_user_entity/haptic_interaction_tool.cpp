@@ -39,8 +39,13 @@ void HapticInteractionTool::init()
     else if(modelName == "Falcon") button_count = 4;
     else if(modelName == "omega") button_count = 1;
     setToolButtonCount(button_count);
+    // TODO this should come from a config file!
+    button_name_map_["click"] = 0;
+    button_name_map_["menu"] = 1;
 
     workspace_radius_ = workspace_radius_ / info.m_workspaceRadius;
+    k_linear_ = 0.1*info.m_maxLinearStiffness / workspace_radius_;
+    k_angular_ = 0;
 
     // TODO this should be a chai thread...!
     ros::NodeHandle nh;
@@ -107,10 +112,12 @@ void HapticInteractionTool::updateDevice()
     //    interaction_handle = haptic_handle;
     handle_->setTransform(interaction_handle);
 
+    //k_linear = chai_device_->getSpecifications().m_maxLinearStiffness * 0.5;
+    updateVirtualCoupling();
 
+    cVector3d force = tf::vectorTfToChai(last_tool_force_);
+    cVector3d torque = tf::vectorTfToChai(last_tool_torque_);
 
-
-    cVector3d force, torque;
     float gripperForce = 0;
 
     // send computed force, torque and gripper force to haptic device

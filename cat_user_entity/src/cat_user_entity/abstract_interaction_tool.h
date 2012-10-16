@@ -45,6 +45,8 @@ public:
     {
         handle_ = new something::AbstractHandle(transform_.child_frame_id_ + "_handle", tfl_, tfb_);
         addChild(handle_);
+        handle_->setVisible(false, true);
+
         ros::NodeHandle nh;
         std::string side = "";
         if(transform_.child_frame_id_.find("right") != std::string::npos) side = "_right";
@@ -123,7 +125,7 @@ protected:
 
     virtual void updateVirtualCoupling();
 
-    virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array);
+    virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action);
 
     virtual void recordButtonTransitions();
 

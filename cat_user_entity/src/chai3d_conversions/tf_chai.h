@@ -8,8 +8,8 @@
 namespace tf
 {
 
-  tf::Vector3 vectorChaiToTf(const cVector3d &v);
-  cVector3d   vectorTfToChai(const tf::Vector3 &v);
+  tf::Vector3 vectorChaiToTf(const cVector3d &c);
+  cVector3d   vectorTfToChai(const tf::Vector3 &t);
 
   tf::Matrix3x3 matrixChaiToTf(const cMatrix3d &rot);
   cMatrix3d matrixTfToChai(const cMatrix3d &rot);

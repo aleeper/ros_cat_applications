@@ -6,7 +6,7 @@
 namespace tf {
 
 SceneGraphNode::SceneGraphNode(const std::string &frame_id, tf::TransformListener *tfl, tf::TransformBroadcaster *tfb, ros::Publisher* pub_markers)
-  : tfl_(tfl), tfb_(tfb), pub_markers_(pub_markers), parent_(0)
+  : tfl_(tfl), tfb_(tfb), pub_markers_(pub_markers), parent_(0), visible_(true)
 {
     transform_.child_frame_id_ = frame_id;
     transform_.setIdentity();
@@ -103,6 +103,21 @@ void SceneGraphNode::printChildren(const bool &recursive)
     }
 }
 
+void SceneGraphNode::setVisible(bool visible, bool recurse)
+{
+  visible_ = visible;
+
+  if(recurse)  // Recursively set children
+  {
+    std::map<std::string, tf::SceneGraphNode*>::iterator it = children_.begin();
+    for( ; it != children_.end(); it++)
+    {
+      it->second->setVisible(visible, recurse);
+    }
+  }
+}
+
+
 std::string SceneGraphNode::getFrameId()
 {
     return transform_.child_frame_id_;
@@ -136,22 +151,22 @@ void SceneGraphNode::addTransformsToVector(const ros::Time now, std::vector<tf::
 }
 
 // Default implementation does nothing!
-void SceneGraphNode::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array)
+void SceneGraphNode::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action)
 {
-
 
 }
 
 void SceneGraphNode::addMarkersToArray(const ros::Time now, visualization_msgs::MarkerArray& array)
 {
   // Add the markers for this node to the array
-  drawSelf(now, array);
+  int action = visible_ ? (visualization_msgs::Marker::ADD) : (visualization_msgs::Marker::DELETE);
+  drawSelf(now, array, action);
 
   // Recursively go through children
   std::map<std::string, tf::SceneGraphNode*>::iterator it = children_.begin();
   for( ; it != children_.end(); it++)
   {
-      it->second->addMarkersToArray(now, array);
+    it->second->addMarkersToArray(now, array);
   }
 }
 
@@ -168,7 +183,8 @@ void SceneGraphNode::publishMarkers( const bool &recursive)
   }
   else
   {
-    drawSelf(now, array);
+    int action = visible_ ? (visualization_msgs::Marker::ADD) : (visualization_msgs::Marker::DELETE);
+    drawSelf(now, array, action);
   }
 
   pub_markers_->publish(array);

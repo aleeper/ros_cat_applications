@@ -32,7 +32,9 @@ void AbstractInteractionTool::timerUpdate()
   if(button_transition_[button_name_map_["click"]] == LOW)         update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::NONE;
   if(button_transition_[button_name_map_["menu"]] == LOW_TO_HIGH)  update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::QUERY_MENU;
 
-  ROS_INFO("Sending cursor update! [%d]", update.button_state);
+  updateVirtualCoupling();
+
+  ROS_INFO("At end of timerUpdate, attached_frame_id_ = [%s], attached_ = [%d]", attached_frame_id_.c_str(), attached_);
   publish_cursor_.publish(update);
 }
 
@@ -40,7 +42,13 @@ void AbstractInteractionTool::timerUpdate()
 void AbstractInteractionTool::updateVirtualCoupling()
 {
   // Skip this if we aren't grabbing anything with an associated control frame...
-  if(attached_frame_id_ == "" || attached_frame_id_ == "no_frame") return;
+  if(!attached_ || attached_frame_id_ == "" || attached_frame_id_ == "no_frame")
+  {
+    //ROS_INFO("It doesn't seem we are attached, so not updating virtual coupling...");
+    setToolForce(tf::Vector3(0,0,0));
+    setToolTorque(tf::Vector3(0,0,0));
+    return;
+  }
 
   // Make sure we are doing all calculations in the tool (e.g. device) frame.
   tf::StampedTransform tool_T_handle_stamped = handle_->getTransform();
@@ -66,64 +74,103 @@ void AbstractInteractionTool::updateVirtualCoupling()
   setToolTorque(torque);
 }
 
-void AbstractInteractionTool::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array)
+void AbstractInteractionTool::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action)
 {
+  // TODO re-write this to avoid copying lines.
 
+  // add markers for forces and torques
+  visualization_msgs::Marker marker;
+  marker.header.frame_id = getFrameId();
+  marker.header.stamp = now;
 
-  tf::Vector3 tail_position = handle_->getPosition();
-  tf::Vector3 tip_position = tail_position + last_tool_force_;
+  marker.type = marker.ARROW;
+  marker.ns = getFrameId();
+  marker.scale.x = 0.025;  // shaft radius
+  marker.scale.y = 0.05;   // head radius
+  marker.scale.z = 0.1;
 
-  if( (tip_position - tail_position).length() > 0.00001 )
+  // force
+  if(true)
   {
-    // add markers for forces
-    visualization_msgs::Marker marker;
-    marker.header.frame_id = getFrameId();
-    marker.header.stamp = now;
-    //tf::Transform T = getTransform();
-    //tf::pointTFToMsg(T.getOrigin(), marker.pose.position);
-    //tf::quaternionTFToMsg(T.getRotation(), marker.pose.orientation);
-
-    marker.action = marker.ADD;
-    marker.ns = getFrameId();
+    marker.id = 0;
     marker.color.r = 1.0;
     marker.color.g = 0.5;
     marker.color.b = 0.2;
-    marker.color.a = 0.7;
+    marker.color.a = 0.9;
 
+    tf::Vector3 tail_position = handle_->getPosition();
+    tf::Vector3 tip_position = tail_position + last_tool_force_;
+    float length = (tip_position - tail_position).length();
 
-    geometry_msgs::Point tail_point, tip_point;
-    tf::pointTFToMsg(tail_position, tail_point);
-    tf::pointTFToMsg(tip_position, tip_point);
+    if( length > 0.00001 && (action == marker.ADD) )
+    {
+      marker.action = action;
+      marker.scale.z = 0.25*length;
+      geometry_msgs::Point tail_point, tip_point;
+      tf::pointTFToMsg(tail_position, tail_point);
+      tf::pointTFToMsg(tip_position, tip_point);
 
-    marker.type = marker.ARROW;
-    marker.points.push_back(tail_point);
-    marker.points.push_back(tip_point);
-    marker.scale.x = 0.05;
-    marker.scale.y = 0.1;
+      marker.points.push_back(tail_point);
+      marker.points.push_back(tip_point);
 
-    array.markers.push_back(marker);
+    }
+    else
+    {
+      marker.action = marker.DELETE;
+    }
   }
+  array.markers.push_back(marker);
+
+  // torque
+  if(false)
+  {
+    marker.id = 1;
+    marker.color.r = 0.5;
+    marker.color.g = 1.0;
+    marker.color.b = 0.2;
+    marker.color.a = 0.9;
+
+    tf::Vector3 tail_position = handle_->getPosition();
+    tf::Vector3 tip_position = tail_position + last_tool_torque_;
+    float length = (tip_position - tail_position).length();
+
+    if( length > 0.00001 && (action == marker.ADD))
+    {
+      marker.scale.z = 0.25*length;
+      marker.action = action;
+      geometry_msgs::Point tail_point, tip_point;
+      tf::pointTFToMsg(tail_position, tail_point);
+      tf::pointTFToMsg(tip_position, tip_point);
+
+      marker.points.push_back(tail_point);
+      marker.points.push_back(tip_point);
+
+    }
+    else
+    {
+      marker.action = marker.DELETE;
+    }
+  }
+  array.markers.push_back(marker);
 }
 
 void AbstractInteractionTool::receiveInteractionCursorFeedback(const interaction_cursor_msgs::InteractionCursorFeedbackConstPtr& icf_cptr)
 {
 
-  attached_frame_id_ = icf_cptr->pose.header.frame_id;
-  tf::poseMsgToTF(icf_cptr->pose.pose, attached_frame_T_grasp_);
-  attachment_type_ = icf_cptr->attachment_type;
+
 
   switch(icf_cptr->event_type)
   {
-//  case interaction_cursor_msgs::InteractionCursorFeedback::NONE:
-//    //attached_ = false;
-//    break;
-//  case interaction_cursor_msgs::InteractionCursorFeedback::GRABBED:
-//    attached_frame_id_ = icf_cptr->pose.header.frame_id;
-//    tf::poseMsgToTF(icf_cptr->pose.pose, attached_frame_T_grasp_);
-//    attachment_type_ = icf_cptr->attachment_type;
-//  case interaction_cursor_msgs::InteractionCursorFeedback::KEEP_ALIVE:
-//    //attached_ = true;
-//    break;
+  case interaction_cursor_msgs::InteractionCursorFeedback::NONE:
+  case interaction_cursor_msgs::InteractionCursorFeedback::GRABBED:
+    //ROS_INFO_STREAM("Received feedback of type [" << (int)icf_cptr->event_type << "] with pose " << icf_cptr->pose);
+    attached_frame_id_ = icf_cptr->pose.header.frame_id;
+    tf::poseMsgToTF(icf_cptr->pose.pose, attached_frame_T_grasp_);
+    attachment_type_ = icf_cptr->attachment_type;
+    break;
+  case interaction_cursor_msgs::InteractionCursorFeedback::KEEP_ALIVE:
+    // Do nothing?
+    break;
   case interaction_cursor_msgs::InteractionCursorFeedback::RELEASED:
   case interaction_cursor_msgs::InteractionCursorFeedback::LOST_GRASP:
     ROS_INFO("Received RELEASED or LOST_GRASP feedback!");

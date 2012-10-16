@@ -30,6 +30,9 @@ void HydraInteractionTool::init()
     button_name_map_["click"] = 0;
     button_name_map_["menu"] = 1;
 
+    k_linear_ = 1;
+    k_angular_ = 1;
+
     updatePaddleIndex();
 }
 

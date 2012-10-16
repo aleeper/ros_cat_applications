@@ -42,13 +42,17 @@ public:
   void init()
   {
     printf("Initializing user entity!\n");
-    right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_RIGHT);
-    right_->setPosition(tf::Vector3(0, 0, 0));
+    right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HAPTIC);
+    right_->setPosition(tf::Vector3(0, -0.4, 0));
     addChild(right_);
 
-    left_ =  new something::ManipulatorNode(prefix_ + "left_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_LEFT);
-    left_->setPosition(tf::Vector3(0, 0, 0));
-    addChild(left_);
+//    right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_RIGHT);
+//    right_->setPosition(tf::Vector3(0, 0, 0));
+//    addChild(right_);
+
+//    left_ =  new something::ManipulatorNode(prefix_ + "left_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_LEFT);
+//    left_->setPosition(tf::Vector3(0, 0, 0));
+//    addChild(left_);
 
     view_ = new something::CameraNode(prefix_ + "camera", tfl_, tfb_);
     view_->setPosition(tf::Vector3(-0.75, 0, 0.2));

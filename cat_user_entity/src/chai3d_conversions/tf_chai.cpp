@@ -5,13 +5,18 @@
 namespace tf
 {
 
-tf::Vector3 vectorChaiToTf(const cVector3d &v)
+tf::Vector3 vectorChaiToTf(const cVector3d &c)
 {
-  tf::Vector3 vtf;
-  vtf.setX(v.x());
-  vtf.setY(v.y());
-  vtf.setZ(v.z());
-  return vtf;
+  tf::Vector3 t;
+  t.setX(c.x());
+  t.setY(c.y());
+  t.setZ(c.z());
+  return t;
+}
+
+cVector3d vectorTfToChai(const tf::Vector3 &t)
+{
+  return cVector3d(t.x(), t.y(), t.z());
 }
 
 tf::Matrix3x3 matrixChaiToTf(const cMatrix3d &rot)

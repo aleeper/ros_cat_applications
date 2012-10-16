@@ -4,16 +4,16 @@
 
 namespace something {
 
-void AbstractHandle::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array)
+void AbstractHandle::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action)
 {
   // add markers handle
   visualization_msgs::Marker marker;
+  marker.action = action;
   marker.header.frame_id = getFrameId();
   marker.header.stamp = now;
   // Transform is identity because we are in this frame!
   marker.pose.orientation.w = 1;
 
-  marker.action = marker.ADD;
   marker.ns = getFrameId();
   marker.color.r = 1.0;
   marker.color.g = 0.5;

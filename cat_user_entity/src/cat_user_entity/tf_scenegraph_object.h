@@ -42,26 +42,35 @@ public:
 
     void printChildren(const bool &recursive = false);
 
+    bool getVisible() { return visible_; }
+    void setVisible(bool visible, bool recurse);
+
     std::string getFrameId();
 
     std::string getParentFrameId();
 
+    // Top-level function for updating TF tree.
     void publishTransformTree(const ros::Time now);
 
-    void addTransformsToVector(const ros::Time now, std::vector<tf::StampedTransform> &transforms);
-
-    void addMarkersToArray(const ros::Time now, visualization_msgs::MarkerArray& array);
-
-    // Derived classes should override this to add markers to the array in order to draw themselves.
-    virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array);
-
+    // Top-level drawing function that draws this and all children
     virtual void publishMarkers( const bool &recursive);
 
-protected:
-    // Methods
-    void setParent(tf::SceneGraphNode* const parent);
 
-    void setParentFrameId(const std::string &parent_id);
+
+protected:
+  // Methods
+  void setParent(tf::SceneGraphNode* const parent);
+
+  void setParentFrameId(const std::string &parent_id);
+
+  // Recursively adds transforms to a vector for publishjing to TF.
+  void addTransformsToVector(const ros::Time now, std::vector<tf::StampedTransform> &transforms);
+
+  // Recursively adds markers to an array for publishing.
+  void addMarkersToArray(const ros::Time now, visualization_msgs::MarkerArray& array);
+
+  // Derived classes should override this to add markers to the array in order to draw themselves.
+  virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action);
 
   // Members
   tf::StampedTransform transform_;
@@ -72,6 +81,8 @@ protected:
 
   tf::SceneGraphNode *parent_;
   std::map<std::string, tf::SceneGraphNode*> children_;
+
+  bool visible_;
 
 };
 
