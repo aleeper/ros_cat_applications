@@ -1,0 +1,405 @@
+diff --git a/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_group_visualization.h b/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_group_visualization.h
+index 789a9f2..758377a 100644
+--- a/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_group_visualization.h
++++ b/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_group_visualization.h
+@@ -40,6 +40,7 @@
+ #include <interactive_markers/menu_handler.h>
+ #include <visualization_msgs/InteractiveMarkerFeedback.h>
+ #include <planning_models_loader/kinematic_model_loader.h>
++#include <tf/transform_broadcaster.h>
+ 
+ namespace moveit_visualization_ros
+ {
+@@ -63,6 +64,7 @@ public:
+    *  @param good_color                 A color to use for drawing this group in a valid kinematic configuration.
+    *  @param bad_color                  A color to use for drawing this group when the kinematic configuration is invalid.
+    *  @param marker_publisher           A ros::Publisher to be used for publishing (regular) markers.
++   *  @param broadcaster                A tf::TransformBroadcaster to be used for publishing TF frames.
+    */
+   KinematicsGroupVisualization(const planning_scene::PlanningSceneConstPtr& planning_scene,
+                                boost::shared_ptr<interactive_markers::InteractiveMarkerServer>& interactive_marker_server, 
+@@ -71,7 +73,8 @@ public:
+                                const std::string& suffix_name, 
+                                const std_msgs::ColorRGBA& good_color,
+                                const std_msgs::ColorRGBA& bad_color,
+-                               ros::Publisher& marker_publisher);
++                               ros::Publisher& marker_publisher,
++                               boost::shared_ptr<tf::TransformBroadcaster>& broadcaster);
+ 
+   ~KinematicsGroupVisualization() {
+     removeLastMarkers();
+@@ -152,6 +155,12 @@ public:
+     state_changed_callback_ = callback;
+   }
+ 
++//  void publishEndEffectorTfFrame()
++//  {
++//    tf::StampedTransform t;
++//    tf_broadcaster_->sendTransform();
++//  }
++
+ protected:
+ 
+   void sendCurrentMarkers();
+@@ -206,6 +215,7 @@ protected:
+   std::map<std::string, visualization_msgs::InteractiveMarker> saved_markers_;
+   planning_models::KinematicState state_;
+   ros::Publisher marker_publisher_;
++  boost::shared_ptr<tf::TransformBroadcaster> tf_broadcaster_;
+   
+   boost::shared_ptr<kinematics_constraint_aware::KinematicsSolverConstraintAware> ik_solver_;
+   
+diff --git a/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_start_goal_visualization.h b/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_start_goal_visualization.h
+index f1a134e..5ae8fd1 100644
+--- a/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_start_goal_visualization.h
++++ b/moveit_visualization_ros/include/moveit_visualization_ros/kinematics_start_goal_visualization.h
+@@ -34,6 +34,9 @@
+ 
+ #include <moveit_visualization_ros/kinematics_group_visualization.h>
+ #include <planning_models_loader/kinematic_model_loader.h>
++#include <tf/transform_broadcaster.h>
++#include <tf/tf.h>
++
+ 
+ namespace moveit_visualization_ros
+ {
+@@ -46,6 +49,7 @@ public:
+                                    boost::shared_ptr<planning_models_loader::KinematicModelLoader>& kinematic_model_loader,
+                                    const std::string& group_name, 
+                                    ros::Publisher& marker_publisher,
++                                   boost::shared_ptr<tf::TransformBroadcaster>& broadcaster,
+                                    bool show = true); 
+ 
+   ~KinematicsStartGoalVisualization() {
+@@ -163,6 +167,12 @@ public:
+   geometry_msgs::PoseStamped getStartInteractiveMarkerPose() const { return start_->getInteractiveMarkerPose(); }
+   geometry_msgs::PoseStamped getGoalInteractiveMarkerPose() const { return goal_->getInteractiveMarkerPose(); }
+ 
++//  void publishEndEffectorTfFrames()
++//  {
++//    start_->publishEndEffectorTfFrame();
++//    goal_->publishEndEffectorTfFrame();
++//  }
++
+ protected:
+ 
+   planning_scene::PlanningSceneConstPtr planning_scene_;
+diff --git a/moveit_visualization_ros/include/moveit_visualization_ros/moveit_visualizer.h b/moveit_visualization_ros/include/moveit_visualization_ros/moveit_visualizer.h
+index bd8fcce..1fabc94 100644
+--- a/moveit_visualization_ros/include/moveit_visualization_ros/moveit_visualizer.h
++++ b/moveit_visualization_ros/include/moveit_visualization_ros/moveit_visualizer.h
+@@ -89,6 +89,8 @@ namespace moveit_visualization_ros {
+         ros::Publisher vis_marker_array_publisher_;
+         ros::Publisher vis_marker_publisher_;
+ 
++        boost::shared_ptr<tf::TransformBroadcaster> tf_broadcaster_;
++
+         // Rviz Panel
+         QWidget* rviz_frame_;
+         rviz::RenderPanel* rviz_render_panel_;
+diff --git a/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization.h b/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization.h
+index 6ee4966..71f8ce6 100644
+--- a/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization.h
++++ b/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization.h
+@@ -50,7 +50,8 @@ public:
+                         const boost::shared_ptr<planning_pipeline::PlanningPipeline>& move_group_pipeline,
+                         boost::shared_ptr<interactive_markers::InteractiveMarkerServer>& interactive_marker_server,
+                         boost::shared_ptr<planning_models_loader::KinematicModelLoader>& kinematics_plugin_loader,
+-                        ros::Publisher& marker_publisher);
++                        ros::Publisher& marker_publisher,
++                        boost::shared_ptr<tf::TransformBroadcaster>& broadcaster);
+   
+   virtual void updatePlanningScene(const planning_scene::PlanningSceneConstPtr& planning_scene);
+ 
+diff --git a/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization_qt_wrapper.h b/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization_qt_wrapper.h
+index 5985387..3e67079 100644
+--- a/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization_qt_wrapper.h
++++ b/moveit_visualization_ros/include/moveit_visualization_ros/planning_visualization_qt_wrapper.h
+@@ -49,7 +49,8 @@ public:
+                                  const boost::shared_ptr<planning_pipeline::PlanningPipeline>& move_group_pipeline,
+                                  boost::shared_ptr<interactive_markers::InteractiveMarkerServer>& interactive_marker_server,
+                                  boost::shared_ptr<planning_models_loader::KinematicModelLoader>& kinematic_model_loader,
+-                                 ros::Publisher& marker_publisher);
++                                 ros::Publisher& marker_publisher,
++                                 boost::shared_ptr<tf::TransformBroadcaster>& broadcaster);
+ 
+   ~PlanningVisualizationQtWrapper() {
+   }
+diff --git a/moveit_visualization_ros/src/interactive_marker_helper_functions.cpp b/moveit_visualization_ros/src/interactive_marker_helper_functions.cpp
+index f3d083b..4c0b34e 100644
+--- a/moveit_visualization_ros/src/interactive_marker_helper_functions.cpp
++++ b/moveit_visualization_ros/src/interactive_marker_helper_functions.cpp
+@@ -187,6 +187,7 @@ void add6DofControl( visualization_msgs::InteractiveMarker &msg, bool fixed )
+   if(fixed)
+     control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;
+ 
++
+   control.orientation.w = 1;
+   control.orientation.x = 1;
+   control.orientation.y = 0;
+diff --git a/moveit_visualization_ros/src/interactive_object_visualization.cpp b/moveit_visualization_ros/src/interactive_object_visualization.cpp
+index 6b58399..7831b3c 100644
+--- a/moveit_visualization_ros/src/interactive_object_visualization.cpp
++++ b/moveit_visualization_ros/src/interactive_object_visualization.cpp
+@@ -769,14 +769,14 @@ void InteractiveObjectVisualization::makeInteractiveMarkerButton(const moveit_ms
+       } else if(shape_msg.type == shape_msgs::SolidPrimitive::CYLINDER) { 
+         marker = makeButtonCylinder(coll.id,
+                                     pose_stamped,
+-                                    shape_msg.dimensions[0]*scale,
++                                    shape_msg.dimensions[0]*scale*2,
+                                     shape_msg.dimensions[1]*scale,
+                                     false, 
+                                     false);
+       } else if(shape_msg.type == shape_msgs::SolidPrimitive::SPHERE) {
+         marker = makeButtonSphere(coll.id,
+                                   pose_stamped,
+-                                  shape_msg.dimensions[0]*scale,
++                                  shape_msg.dimensions[0]*scale*2,
+                                   false, 
+                                   false);
+       }
+diff --git a/moveit_visualization_ros/src/interactive_object_visualization_test.cpp b/moveit_visualization_ros/src/interactive_object_visualization_test.cpp
+index 952d514..e6fdbb2 100644
+--- a/moveit_visualization_ros/src/interactive_object_visualization_test.cpp
++++ b/moveit_visualization_ros/src/interactive_object_visualization_test.cpp
+@@ -79,6 +79,7 @@ int main(int argc, char** argv)
+ 
+   ros::Publisher vis_marker_array_publisher;
+   ros::Publisher vis_marker_publisher;
++  boost::shared_ptr<tf::TransformBroadcaster> tf_broadcaster;
+ 
+   vis_marker_publisher = nh.advertise<visualization_msgs::Marker> (VIS_TOPIC_NAME, 128);
+   vis_marker_array_publisher = nh.advertise<visualization_msgs::MarkerArray> (VIS_TOPIC_NAME + "_array", 128);
+@@ -105,7 +106,8 @@ int main(int argc, char** argv)
+                                              "state",
+                                              good_color,
+                                              bad_color,
+-                                             vis_marker_array_publisher));
++                                             vis_marker_array_publisher,
++                                             tf_broadcaster));
+   
+   iov_.reset(new InteractiveObjectVisualization(planning_scene_monitor_->getPlanningScene(),
+                                                 interactive_marker_server_,
+diff --git a/moveit_visualization_ros/src/kinematics_group_visualization.cpp b/moveit_visualization_ros/src/kinematics_group_visualization.cpp
+index d0a1c91..fb522dc 100644
+--- a/moveit_visualization_ros/src/kinematics_group_visualization.cpp
++++ b/moveit_visualization_ros/src/kinematics_group_visualization.cpp
+@@ -50,7 +50,8 @@ namespace moveit_visualization_ros
+                                                                const std::string& suffix_name,
+                                                                const std_msgs::ColorRGBA& good_color,
+                                                                const std_msgs::ColorRGBA& bad_color,
+-                                                               ros::Publisher& marker_publisher) :
++                                                               ros::Publisher& marker_publisher,
++                                                               boost::shared_ptr<tf::TransformBroadcaster>& broadcaster) :
+         group_name_(group_name),
+         suffix_name_(suffix_name),
+         regular_marker_name_(group_name+"_kinematics_"+suffix_name),
+@@ -66,6 +67,7 @@ namespace moveit_visualization_ros
+         interactive_marker_server_(interactive_marker_server),
+         state_(planning_scene_->getCurrentState()),
+         marker_publisher_(marker_publisher),
++        tf_broadcaster_(broadcaster),
+         dof_marker_enabled_(true),
+         interaction_enabled_(true),
+         visible_(true)
+@@ -445,13 +447,30 @@ namespace moveit_visualization_ros
+             last_marker_array_.markers.clear();
+             std_msgs::ColorRGBA col = good_color_;
+             col.a = stored_alpha_;
++            const std::vector<std::string>& link_names = ik_solver_->getLinkNames();
+             state_.getRobotMarkers(col,
+                                    regular_marker_name_,
+                                    ros::Duration(0.0),
+                                    last_marker_array_,
+-                                   ik_solver_->getLinkNames());
++                                   link_names);
+             if(all_markers_hidden_ || regular_markers_hidden_) return;
+             marker_publisher_.publish(last_marker_array_);
++
++            // aleeper: New stuff here
++            std::vector<geometry_msgs::TransformStamped> transforms;
++            for(size_t i = 0; i < last_marker_array_.markers.size(); i++)
++            {
++              visualization_msgs::Marker marker = last_marker_array_.markers[i];
++              geometry_msgs::TransformStamped t;
++              t.transform.translation.x = marker.pose.position.x;
++              t.transform.translation.y = marker.pose.position.y;
++              t.transform.translation.z = marker.pose.position.z;
++              t.transform.rotation = marker.pose.orientation;
++              t.header = marker.header;
++              t.child_frame_id = group_name_ + "_" + suffix_name_ + "_" + link_names[i];
++              transforms.push_back(t);
++            }
++            tf_broadcaster_->sendTransform(transforms);
+         } else {
+             removeLastMarkers();
+             //last_marker_array_.markers.clear();
+@@ -653,6 +672,10 @@ namespace moveit_visualization_ros
+                                                  .35,
+                                                  true,
+                                                  relative_transforms_[it->first]);
++                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
++                // aleeper: HACK to try out the new 3D cursor with force feedback...
++                marker.controls[0].interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE;
++                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+             }
+ 
+             if(add_6dof) {
+@@ -671,6 +694,19 @@ namespace moveit_visualization_ros
+             //                .3,
+             //                false,
+             //                false);
++
++            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
++            // aleeper: HACK to try out the new 3D cursor with force feedback...
++            std::string description = "";
++            std::string prefix = group_name_ + "_" + "start_position" + "_";
++            if(group_name_.find("right") != std::string::npos) description = "control_frame: " + prefix + "r_wrist_roll_link";
++            if(group_name_.find("left") != std::string::npos) description =  "control_frame: " + prefix + "l_wrist_roll_link";
++            for(size_t i = 0; i < marker.controls.size(); i++)
++            {
++              marker.controls[i].description = description;
++            }
++            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
++
+             interactive_marker_server_->insert(marker);
+             interactive_marker_server_->setCallback(marker.name,
+                                                     boost::bind(&KinematicsGroupVisualization::processInteractiveMarkerFeedback, this, _1));
+diff --git a/moveit_visualization_ros/src/kinematics_start_goal_visualization.cpp b/moveit_visualization_ros/src/kinematics_start_goal_visualization.cpp
+index e2e4918..a320874 100644
+--- a/moveit_visualization_ros/src/kinematics_start_goal_visualization.cpp
++++ b/moveit_visualization_ros/src/kinematics_start_goal_visualization.cpp
+@@ -40,6 +40,7 @@ KinematicsStartGoalVisualization::KinematicsStartGoalVisualization(planning_scen
+                                                                    boost::shared_ptr<planning_models_loader::KinematicModelLoader>& kinematic_model_loader,
+                                                                    const std::string& group_name, 
+                                                                    ros::Publisher& marker_publisher,
++                                                                   boost::shared_ptr<tf::TransformBroadcaster>& broadcaster,
+                                                                    bool show) :
+   planning_scene_(planning_scene),
+   start_chained_(false)
+@@ -54,7 +55,8 @@ KinematicsStartGoalVisualization::KinematicsStartGoalVisualization(planning_scen
+                                                 "start_position",
+                                                 makeRandomColor(.2,1.0),
+                                                 bad_color,
+-                                                marker_publisher));
++                                                marker_publisher,
++                                                broadcaster));
+ 
+   goal_.reset(new KinematicsGroupVisualization(planning_scene,
+                                                interactive_marker_server,
+@@ -63,7 +65,8 @@ KinematicsStartGoalVisualization::KinematicsStartGoalVisualization(planning_scen
+                                                "end_position",
+                                                makeRandomColor(.2,1.0),
+                                                bad_color,
+-                                               marker_publisher));
++                                               marker_publisher,
++                                               broadcaster));
+ 
+   start_->addButtonClickCallback(boost::bind(&KinematicsStartGoalVisualization::startOn, this));
+   goal_->addButtonClickCallback(boost::bind(&KinematicsStartGoalVisualization::goalOn, this));
+diff --git a/moveit_visualization_ros/src/kinematics_visualization_start_goal_test.cpp b/moveit_visualization_ros/src/kinematics_visualization_start_goal_test.cpp
+index 3013962..75027d7 100644
+--- a/moveit_visualization_ros/src/kinematics_visualization_start_goal_test.cpp
++++ b/moveit_visualization_ros/src/kinematics_visualization_start_goal_test.cpp
+@@ -69,6 +69,8 @@ int main(int argc, char** argv)
+   ros::Publisher vis_marker_array_publisher;
+   ros::Publisher vis_marker_publisher;
+ 
++  boost::shared_ptr<tf::TransformBroadcaster> tf_broadcaster;
++
+   vis_marker_publisher = nh.advertise<visualization_msgs::Marker> (VIS_TOPIC_NAME, 128);
+   vis_marker_array_publisher = nh.advertise<visualization_msgs::MarkerArray> (VIS_TOPIC_NAME + "_array", 128);
+ 
+@@ -79,7 +81,8 @@ int main(int argc, char** argv)
+                                                                         interactive_marker_server,
+                                                                         kinematic_model_loader,
+                                                                         "right_arm",
+-                                                                        vis_marker_array_publisher);
++                                                                        vis_marker_array_publisher,
++                                                                        tf_broadcaster);
+ 
+   kv.setGoodBadMode(true);
+  
+diff --git a/moveit_visualization_ros/src/kinematics_visualization_test.cpp b/moveit_visualization_ros/src/kinematics_visualization_test.cpp
+index d538471..2a5307c 100644
+--- a/moveit_visualization_ros/src/kinematics_visualization_test.cpp
++++ b/moveit_visualization_ros/src/kinematics_visualization_test.cpp
+@@ -81,6 +81,8 @@ int main(int argc, char** argv)
+   ros::Publisher vis_marker_array_publisher;
+   ros::Publisher vis_marker_publisher;
+ 
++  boost::shared_ptr<tf::TransformBroadcaster> tf_broadcaster;
++
+   vis_marker_publisher = nh.advertise<visualization_msgs::Marker> (VIS_TOPIC_NAME, 128);
+   vis_marker_array_publisher = nh.advertise<visualization_msgs::MarkerArray> (VIS_TOPIC_NAME + "_array", 128);
+ 
+@@ -127,7 +129,8 @@ int main(int argc, char** argv)
+                                                                 "state",
+                                                                 good_color,
+                                                                 bad_color,
+-                                                                vis_marker_array_publisher);
++                                                                vis_marker_array_publisher,
++                                                                tf_broadcaster);
+ 
+   kv.addButtonClickCallback(boost::bind(&simplePrintClick));
+   kv.addMenuEntry("monkey1", boost::bind(&simplePrintMenu1, _1));
+diff --git a/moveit_visualization_ros/src/moveit_visualizer.cpp b/moveit_visualization_ros/src/moveit_visualizer.cpp
+index 8ea9469..847f33d 100644
+--- a/moveit_visualization_ros/src/moveit_visualizer.cpp
++++ b/moveit_visualization_ros/src/moveit_visualizer.cpp
+@@ -66,6 +66,7 @@ MoveItVisualizer::MoveItVisualizer() :
+ 
+     interactive_marker_server_.reset(new interactive_markers::InteractiveMarkerServer("interactive_kinematics_visualization", "", false));
+     kinematic_model_loader_.reset(new planning_models_loader::KinematicModelLoader("robot_description"));
++    tf_broadcaster_.reset(new tf::TransformBroadcaster);
+ 
+     if(!monitor_robot_state) {
+         ROS_INFO_STREAM("Starting publisher thread");
+@@ -116,7 +117,8 @@ MoveItVisualizer::MoveItVisualizer() :
+                                                  move_group_pipeline,
+                                                  interactive_marker_server_,
+                                                  kinematic_model_loader_,
+-                                                 vis_marker_array_publisher_));
++                                                 vis_marker_array_publisher_,
++                                                 tf_broadcaster_));
+ 
+     iov_.reset(new InteractiveObjectVisualizationQtWrapper(planning_scene_monitor_->getPlanningScene(),
+                                                            interactive_marker_server_,
+diff --git a/moveit_visualization_ros/src/planning_visualization.cpp b/moveit_visualization_ros/src/planning_visualization.cpp
+index f1525dc..3b0122e 100644
+--- a/moveit_visualization_ros/src/planning_visualization.cpp
++++ b/moveit_visualization_ros/src/planning_visualization.cpp
+@@ -41,7 +41,8 @@ PlanningVisualization::PlanningVisualization(const planning_scene::PlanningScene
+                                              const boost::shared_ptr<planning_pipeline::PlanningPipeline>& move_group_pipeline,
+                                              boost::shared_ptr<interactive_markers::InteractiveMarkerServer>& interactive_marker_server,
+                                              boost::shared_ptr<planning_models_loader::KinematicModelLoader>& kinematic_model_loader,
+-                                             ros::Publisher& marker_publisher)
++                                             ros::Publisher& marker_publisher,
++                                             boost::shared_ptr<tf::TransformBroadcaster>& broadcaster)
+   : nh_(""),
+     pnh_("~"),
+     planning_scene_(planning_scene),
+@@ -62,6 +63,7 @@ PlanningVisualization::PlanningVisualization(const planning_scene::PlanningScene
+                                                                                            kinematic_model_loader,
+                                                                                            groups[i].name_,
+                                                                                            marker_publisher,
++                                                                                           broadcaster,
+                                                                                            false));
+       group_visualization_map_[groups[i].name_]->addMenuEntry("Plan", boost::bind(&PlanningVisualization::generatePlan, this, _1, true));
+       group_visualization_map_[groups[i].name_]->addMenuEntry("Plan out and back", boost::bind(&PlanningVisualization::generateOutAndBackPlan, this, _1, true));
+diff --git a/moveit_visualization_ros/src/planning_visualization_qt_wrapper.cpp b/moveit_visualization_ros/src/planning_visualization_qt_wrapper.cpp
+index a55a4c1..42a1c90 100644
+--- a/moveit_visualization_ros/src/planning_visualization_qt_wrapper.cpp
++++ b/moveit_visualization_ros/src/planning_visualization_qt_wrapper.cpp
+@@ -40,8 +40,9 @@ PlanningVisualizationQtWrapper(const planning_scene::PlanningSceneConstPtr& plan
+                                const boost::shared_ptr<planning_pipeline::PlanningPipeline>& move_group_pipeline,
+                                boost::shared_ptr<interactive_markers::InteractiveMarkerServer>& interactive_marker_server,
+                                boost::shared_ptr<planning_models_loader::KinematicModelLoader>& kinematic_model_loader,
+-                               ros::Publisher& marker_publisher) :
+-  PlanningVisualization(planning_scene, move_group_pipeline, interactive_marker_server, kinematic_model_loader, marker_publisher)
++                               ros::Publisher& marker_publisher,
++                               boost::shared_ptr<tf::TransformBroadcaster>& broadcaster) :
++  PlanningVisualization(planning_scene, move_group_pipeline, interactive_marker_server, kinematic_model_loader, marker_publisher, broadcaster)
+ {
+   qRegisterMetaType<planning_models::KinematicState*>("KinematicState");
+   qRegisterMetaType<trajectory_msgs::JointTrajectory>("trajectory_msgs::JointTrajectory");
