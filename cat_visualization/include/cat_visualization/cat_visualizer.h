@@ -91,6 +91,8 @@ protected:
   ros::Publisher vis_marker_array_publisher_;
   ros::Publisher vis_marker_publisher_;
 
+  boost::shared_ptr<tf::TransformBroadcaster> tf_broadcaster_;
+
   // - - - -  Rviz Panel - - - -
   QWidget* rviz_frame_;
   rviz::RenderPanel* rviz_render_panel_;

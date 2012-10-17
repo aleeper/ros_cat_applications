@@ -11,7 +11,7 @@
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
   <arg name="planner_type" default="IK"/>
-  <arg name="planner_plugin" default="linear"/>
+  <arg name="planner_plugin" default="convex"/>
   <arg name="execute_trajectory" default="true"/>
   <arg name="teleop_period" default="0.03333"/> 
 

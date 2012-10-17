@@ -122,6 +122,8 @@ AssistedTeleop::AssistedTeleop() :
     vis_marker_publisher_ = nh.advertise<visualization_msgs::Marker> (VIS_TOPIC_NAME, 128);
     vis_marker_array_publisher_ = nh.advertise<visualization_msgs::MarkerArray> (VIS_TOPIC_NAME + "_array", 128);
 
+    tf_broadcaster_.reset(new tf::TransformBroadcaster);
+
     std_msgs::ColorRGBA col;
     col.r = col.g = col.b = .5;
     col.a = 1.0;
@@ -142,7 +144,8 @@ AssistedTeleop::AssistedTeleop() :
                                                  move_group_pipeline,
                                                  interactive_marker_server_,
                                                  kinematic_model_loader_,
-                                                 vis_marker_array_publisher_));
+                                                 vis_marker_array_publisher_,
+                                                 tf_broadcaster_));
 
   iov_.reset(new InteractiveObjectVisualizationQtWrapper(planning_scene_monitor_->getPlanningScene(),
                                                          interactive_marker_server_,

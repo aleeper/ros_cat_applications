@@ -44,7 +44,7 @@ void HapticInteractionTool::init()
     button_name_map_["menu"] = 1;
 
     workspace_radius_ = workspace_radius_ / info.m_workspaceRadius;
-    k_linear_ = 0.1*info.m_maxLinearStiffness / workspace_radius_;
+    k_linear_ = 0.06*info.m_maxLinearStiffness / workspace_radius_;
     k_angular_ = 0;
 
     // TODO this should be a chai thread...!

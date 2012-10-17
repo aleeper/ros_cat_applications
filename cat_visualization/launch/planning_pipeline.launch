@@ -6,7 +6,7 @@
 
   <arg name="pipeline" default="linear" />
 
-  <include file="$(find cat_planners)/launch/$(arg pipeline)_planning_pipeline.launch" />
+  <include file="$(find cat_visualization)/launch/$(arg pipeline)_planning_pipeline.launch" />
 
 </launch>
 
