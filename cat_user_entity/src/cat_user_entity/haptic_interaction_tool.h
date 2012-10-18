@@ -23,7 +23,7 @@ public:
                                                  tf::TransformListener *tfl,
                                                  tf::TransformBroadcaster *tfb)
         : AbstractInteractionTool(frame_id, tfl, tfb),
-          chai_device_handler_(0), chai_device_(0), workspace_radius_(0.5)
+          chai_device_handler_(0), chai_device_(0), workspace_radius_(0.25)
     {
         // Must come first, and must be defined in the header due to library issues in CHAI3D.
         initializeHaptics();

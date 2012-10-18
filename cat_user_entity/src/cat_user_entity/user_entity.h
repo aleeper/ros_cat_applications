@@ -26,6 +26,9 @@ public:
   UserEntity(const std::string& tf_parent_frame_id, const std::string& frame_prefix,
              tf::TransformListener* tfl, tf::TransformBroadcaster* tfb, ros::Publisher* pub_markers)
     : SceneGraphNode(frame_prefix + "frame", tfl, tfb, pub_markers),
+      right_(0),
+      left_(0),
+      view_(0),
       prefix_(frame_prefix),
       grabbing_(false)
   {
@@ -43,7 +46,7 @@ public:
   {
     printf("Initializing user entity!\n");
     right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HAPTIC);
-    right_->setPosition(tf::Vector3(0, -0.4, 0));
+    right_->setPosition(tf::Vector3(0, 0, 0));
     addChild(right_);
 
 //    right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_RIGHT);
@@ -55,7 +58,7 @@ public:
 //    addChild(left_);
 
     view_ = new something::CameraNode(prefix_ + "camera", tfl_, tfb_);
-    view_->setPosition(tf::Vector3(-0.75, 0, 0.2));
+    view_->setPosition(tf::Vector3(-1.1, 0, 0.2));
     //view_->setQuaternion(tf::createQuaternionFromRPY(0.0, 0.5, 0.0));
     addChild(view_);
 
