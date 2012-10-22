@@ -67,6 +67,9 @@ AssistedTeleop::AssistedTeleop() :
     bool monitor_robot_state = false;
     loc_nh.param("monitor_robot_state", monitor_robot_state, false);
 
+    bool use_iov = false;
+    loc_nh.param("use_iov", use_iov, false);
+
     interactive_marker_server_.reset(new interactive_markers::InteractiveMarkerServer("interactive_kinematics_visualization", "", false));
     kinematic_model_loader_.reset(new planning_models_loader::KinematicModelLoader("robot_description"));
 
@@ -99,23 +102,11 @@ AssistedTeleop::AssistedTeleop() :
 
             std::vector<std::string> controller_names;
 
-//            controller_names.clear();
-//            cmanager->getLoadedControllers(controller_names);
-//            ROS_INFO("Loaded controllers:");
-//            for( size_t i = 0; i < controller_names.size(); i++)
-//              ROS_INFO("    %s", controller_names[i].c_str());
-
             controller_names.clear();
             cmanager->getActiveControllers(controller_names);
             ROS_INFO("Active controllers:");
             for( size_t i = 0; i < controller_names.size(); i++)
               ROS_INFO("    %s", controller_names[i].c_str());
-
-//            controller_names.clear();
-//            cmanager->getControllersList(controller_names);
-//            ROS_INFO("Controllers list:");
-//            for( size_t i = 0; i < controller_names.size(); i++)
-//              ROS_INFO("    %s", controller_names[i].c_str());
         }
     }
 
@@ -147,17 +138,13 @@ AssistedTeleop::AssistedTeleop() :
                                                  vis_marker_array_publisher_,
                                                  tf_broadcaster_));
 
-  iov_.reset(new InteractiveObjectVisualizationQtWrapper(planning_scene_monitor_->getPlanningScene(),
-                                                         interactive_marker_server_,
-                                                         col));
-  iov_->setUpdateCallback(boost::bind(&AssistedTeleop::updatePlanningScene, this, _1));
-
-  //iov_->addCube("default_cube_1");
-  //iov_->addSphere("default_sphere_1");
-  //iov_->addObject();
-
-        //addObject(const moveit_msgs::CollisionObject& coll,
-        //                                         const std_msgs::ColorRGBA& col) {
+  if(use_iov)
+  {
+    iov_.reset(new InteractiveObjectVisualizationQtWrapper(planning_scene_monitor_->getPlanningScene(),
+                                                           interactive_marker_server_,
+                                                           col));
+    iov_->setUpdateCallback(boost::bind(&AssistedTeleop::updatePlanningScene, this, _1));
+  }
 
 //    if(monitor_robot_state) {
 //        pv_->addMenuEntry("Reset start state", boost::bind(&AssistedTeleop::updateToCurrentState, this));
@@ -201,14 +188,17 @@ AssistedTeleop::AssistedTeleop() :
 
   // File Menu
   PlanningSceneFileMenu* planning_scene_file_menu = new PlanningSceneFileMenu(menu_bar);
-  QObject::connect(iov_.get(),
-                   SIGNAL(updatePlanningSceneSignal(planning_scene::PlanningSceneConstPtr)),
-                   planning_scene_file_menu,
-                   SLOT(updatePlanningSceneSignalled(planning_scene::PlanningSceneConstPtr)));
-  QObject::connect(planning_scene_file_menu->getDatabaseDialog(),
-                   SIGNAL(planningSceneLoaded(moveit_msgs::PlanningScenePtr)),
-                   iov_.get(),
-                   SLOT(loadPlanningSceneSignalled(moveit_msgs::PlanningScenePtr)));
+  if(iov_)
+  {
+    QObject::connect(iov_.get(),
+                     SIGNAL(updatePlanningSceneSignal(planning_scene::PlanningSceneConstPtr)),
+                     planning_scene_file_menu,
+                     SLOT(updatePlanningSceneSignalled(planning_scene::PlanningSceneConstPtr)));
+    QObject::connect(planning_scene_file_menu->getDatabaseDialog(),
+                     SIGNAL(planningSceneLoaded(moveit_msgs::PlanningScenePtr)),
+                     iov_.get(),
+                     SLOT(loadPlanningSceneSignalled(moveit_msgs::PlanningScenePtr)));
+  }
 
   // Planner menu
   planner_selection_menu_ = new PlannerSelectionMenu(menu_bar);
@@ -249,32 +239,35 @@ AssistedTeleop::AssistedTeleop() :
 
   main_layout->setMenuBar(menu_bar);
 
-  //main_layout->addWidget(iov_widget);
   main_layout->addWidget(rviz_frame_);
 
   main_window_->setLayout(main_layout);
 
   //QObject::connect(iov_widget, SIGNAL(addCubeRequested()), iov_.get(), SLOT(addCubeSignalled()));
-  QObject::connect(primitive_object_dialog,
-                   SIGNAL(addCollisionObjectRequested(const moveit_msgs::CollisionObject&, const QColor&)),
-                   iov_.get(),
-                   SLOT(addCollisionObjectSignalled(const moveit_msgs::CollisionObject&, const QColor&)));
+  if( iov_ )
+  {
+    QObject::connect(primitive_object_dialog,
+                     SIGNAL(addCollisionObjectRequested(const moveit_msgs::CollisionObject&, const QColor&)),
+                     iov_.get(),
+                     SLOT(addCollisionObjectSignalled(const moveit_msgs::CollisionObject&, const QColor&)));
 
-  QObject::connect(mesh_object_dialog,
-                   SIGNAL(addCollisionObjectRequested(const moveit_msgs::CollisionObject&, const QColor&)),
-                   iov_.get(),
-                   SLOT(addCollisionObjectSignalled(const moveit_msgs::CollisionObject&, const QColor&)));
-  //stuff for handling attached objects
-  iov_->addMenuEntry("Attach object",
-                     boost::bind(&AssistedTeleop::attachObject, this, _1));
-  QObject::connect(attach_object_addition_dialog_,
-                   SIGNAL(attachCollisionObjectRequested(const std::string&,
+    QObject::connect(mesh_object_dialog,
+                     SIGNAL(addCollisionObjectRequested(const moveit_msgs::CollisionObject&, const QColor&)),
+                     iov_.get(),
+                     SLOT(addCollisionObjectSignalled(const moveit_msgs::CollisionObject&, const QColor&)));
+
+    //stuff for handling attached objects
+    iov_->addMenuEntry("Attach object",
+                       boost::bind(&AssistedTeleop::attachObject, this, _1));
+    QObject::connect(attach_object_addition_dialog_,
+                     SIGNAL(attachCollisionObjectRequested(const std::string&,
+                                                           const std::string&,
+                                                           const std::vector<std::string>&)),
+                     iov_.get(),
+                     SLOT(attachCollisionObjectSignalled(const std::string&,
                                                          const std::string&,
-                                                         const std::vector<std::string>&)),
-                   iov_.get(),
-                   SLOT(attachCollisionObjectSignalled(const std::string&,
-                                                       const std::string&,
-                                                       const std::vector<std::string>&)));
+                                                         const std::vector<std::string>&)));
+  }
   main_window_->show();
 
   planning_scene_monitor_->addUpdateCallback(boost::bind(&AssistedTeleop::updateSceneCallback, this));
@@ -436,7 +429,7 @@ void AssistedTeleop::attachObject(const std::string& name) {
 }
 
 void AssistedTeleop::updateToCurrentState() {
-    iov_->updateCurrentState(planning_scene_monitor_->getPlanningScene()->getCurrentState());
+    //iov_->updateCurrentState(planning_scene_monitor_->getPlanningScene()->getCurrentState());
     //pv_->resetAllStartStates();
 }
 

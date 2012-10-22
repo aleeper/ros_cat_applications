@@ -132,6 +132,19 @@ void TeleopVisualization::generateTeleopPlan(const std::string& name) {
     ROS_ERROR("No planner type specified!");
   }
 
+  bool show_collisions = true;
+  if(show_collisions) // it's a bummer to have to recompute this result
+  {
+    collision_detection::CollisionRequest req;
+    req.max_contacts = 10;
+    req.contacts = true;
+    req.distance = false;
+    req.verbose = false;
+    collision_detection::CollisionResult res;
+    planning_scene_->checkCollision(req, res, ksgv->getGoalState());
+    collision_visualization_->drawCollisions(res, planning_scene_->getPlanningFrame());
+  }
+
   // = = = = = Store the last trajectory solution as the new proxy state... = = = = = =
 
   // This is the WRONG thing to do. The robot can end up in collision, and then you are hosed.
@@ -184,7 +197,7 @@ void TeleopVisualization::createIKStep(const std::string& name) {
 
 
 void TeleopVisualization::createTeleopStep(const std::string& name) {
-  ROS_INFO_STREAM("Planning for " << name);
+  ROS_DEBUG_STREAM("Planning for " << name);
   if(group_visualization_map_.find(name) == group_visualization_map_.end()) {
     ROS_INFO_STREAM("No group " << name << " so can't plan");
     return;
@@ -193,7 +206,6 @@ void TeleopVisualization::createTeleopStep(const std::string& name) {
   KinematicsStartGoalVisualization* ksgv = group_visualization_map_[name].get();
 
   const planning_models::KinematicState& start_state = ksgv->getStartState();
-  //const planning_models::KinematicState& start_state = planning_scene_->getCurrentState();
   const planning_models::KinematicState& goal_state = ksgv->getGoalState();
 
   // TODO this function is probably broken; ask Ioan?
@@ -230,7 +242,7 @@ void TeleopVisualization::createTeleopStep(const std::string& name) {
     //ROS_INFO_STREAM("Constraints are: \n" << req.motion_plan_request.goal_constraints[0]);
 
     req.motion_plan_request.num_planning_attempts = 1;
-    req.motion_plan_request.allowed_planning_time = ros::Duration(teleop_period_*1.3);
+    req.motion_plan_request.allowed_planning_time = ros::Duration(teleop_period_*2);
 
     // Manually define what planner to use - DTC
     //req.motion_plan_request.planner_id = getCurrentPlanner();
