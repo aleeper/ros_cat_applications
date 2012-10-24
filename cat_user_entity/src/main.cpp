@@ -56,7 +56,8 @@ int main(int argc, char** argv)
     tf::TransformBroadcaster tfb;
     ros::Publisher pub_markers = nh.advertise<visualization_msgs::MarkerArray>("user_entity_markers", 10);
     something::UserEntity *user = new something::UserEntity("base_link", "user1_", &tfl, &tfb, &pub_markers);
-    user->setPosition(tf::Vector3(-0.2,0,0.2));
+    user->setPosition(tf::Vector3(0.5,0,0.5));
+    user->setQuaternion(tf::createQuaternionFromYaw(M_PI));
     ros::Duration(1.0).sleep();
 
     int ch;

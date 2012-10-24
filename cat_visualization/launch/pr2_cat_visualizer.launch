@@ -30,7 +30,7 @@
     <arg name="moveit_manage_controllers" value="true" />
   </include>
 
-  <include ns="$(arg visualizer_node_name)" file="$(find pr2_moveit_config)/launch/sensor_manager.launch">
+  <include ns="$(arg visualizer_node_name)" file="$(find cat_visualization)/launch/sensor_manager.launch">
     <arg name="moveit_sensor_manager" value="pr2" />
   </include>
 

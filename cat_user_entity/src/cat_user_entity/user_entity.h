@@ -33,34 +33,50 @@ public:
       grabbing_(false)
   {
     ros::NodeHandle nh;
-    update_timer_ = nh.createTimer(ros::Duration(0.01), boost::bind(&UserEntity::update, this));
+    ros::NodeHandle pnh("~");
+    double period = 0.01;
+    pnh.param("period", period, 0.01);
+    std::string device = "";
+    pnh.param("device", device, std::string("hydra"));
+
+    update_timer_ = nh.createTimer(ros::Duration(period), boost::bind(&UserEntity::update, this));
     changeParentFrameId(tf_parent_frame_id);
 
-    init();
+    init(device);
   }
 
   virtual ~UserEntity();
 
   // Must be defined in the header due to library issues in CHAI3D.
-  void init()
+  void init(const std::string &device)
   {
     printf("Initializing user entity!\n");
-//    right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HAPTIC);
-//    right_->setPosition(tf::Vector3(0, 0, 0));
-//    addChild(right_);
-
-    right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_RIGHT);
-    right_->setPosition(tf::Vector3(0, 0, 0));
-    addChild(right_);
-
-    left_ =  new something::ManipulatorNode(prefix_ + "left_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_LEFT);
-    left_->setPosition(tf::Vector3(0, 0, 0));
-    addChild(left_);
 
     view_ = new something::CameraNode(prefix_ + "camera", tfl_, tfb_);
-    view_->setPosition(tf::Vector3(-2.5, 0, 1));
-    //view_->setQuaternion(tf::createQuaternionFromRPY(0.0, 0.5, 0.0));
+    view_->setPosition(tf::Vector3(-1.5, 0, 0.5)); // default
     addChild(view_);
+
+    if(device == "haptic")
+    {
+      view_->setPosition(tf::Vector3(-1, 0, 0));
+      right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HAPTIC);
+      right_->setPosition(tf::Vector3(0, 0, 0));
+      addChild(right_);
+    }
+    else if(device == "hydra")
+    {
+      view_->setPosition(tf::Vector3(-1.5, 0, 0.5));
+
+      right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_RIGHT);
+      right_->setPosition(tf::Vector3(0, 0, 0));
+      addChild(right_);
+
+      left_ =  new something::ManipulatorNode(prefix_ + "left_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_LEFT);
+      left_->setPosition(tf::Vector3(0, 0, 0));
+      addChild(left_);
+    }
+
+
 
     grab_start_world_to_handle_.setIdentity();
 

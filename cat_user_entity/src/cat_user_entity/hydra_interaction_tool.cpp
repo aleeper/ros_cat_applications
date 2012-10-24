@@ -61,7 +61,7 @@ void HydraInteractionTool::updateFromMsg(const razer_hydra::HydraConstPtr &calib
     // Update pose info
     tf::Transform interaction_handle;
     tf::transformMsgToTF(paddle.transform, interaction_handle);
-    interaction_handle.setOrigin(interaction_handle.getOrigin()*2.5);
+    interaction_handle.setOrigin(interaction_handle.getOrigin()*1.0);
     handle_->setTransform(interaction_handle);
 
     // Update button info
