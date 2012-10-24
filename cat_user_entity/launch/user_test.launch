@@ -1,0 +1,11 @@
+<launch>
+
+  <arg name="period" default="0.01" />
+  <arg name="device" default="hydra" />
+
+  <node name="cat_user_entity_test" pkg="cat_user_entity" type="user_test" output="screen" >
+    <param name="period" type="double" value="$(arg period)" />
+    <param name="device" type="string" value="$(arg device)" />
+  </node>
+
+</launch>
