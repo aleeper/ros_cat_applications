@@ -124,6 +124,9 @@ protected:
   /** Parameter for bypassing trajectory execution... */
   bool execute_trajectory_;
 
+  /** Parameter (HACK) for encoding whether to use position or position + velocit constraints... */
+  int constraint_type_;
+
   // TODO do I still need this?
   TrajectoryExecutionFunction trajectory_execution_fn_;
 };

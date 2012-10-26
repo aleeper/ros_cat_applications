@@ -15,6 +15,7 @@
   <arg name="execute_trajectory" default="true"/>
   <arg name="teleop_period" default="0.03333"/> 
   <arg name="use_iov" default="false"/> 
+  <arg name="constraint_type" default="1"/> 
 
   <include file="$(find pr2_moveit_config)/launch/planning_context.launch" />
 
@@ -43,6 +44,7 @@
     <param name="execute_trajectory" type="bool" value="$(arg execute_trajectory)" />
     <param name="teleop_period" type="double" value="$(arg teleop_period)" />
     <param name="use_iov" type="bool" value="$(arg use_iov)" />
+    <param name="constraint_type" type="int" value="$(arg constraint_type)" />
   </node>
 
 </launch>

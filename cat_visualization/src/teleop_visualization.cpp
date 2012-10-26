@@ -34,6 +34,7 @@
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <kinematic_constraints/utils.h>
 #include <planning_models/conversions.h>
+#include <collision_detection/collision_octomap_filter.h>
 
 namespace moveit_visualization_ros {
 
@@ -52,6 +53,7 @@ TeleopVisualization::TeleopVisualization(const planning_scene::PlanningSceneCons
   //pnh_.param("constraint_aware", constraint_aware_, false);
   pnh_.param("planner_type", planner_type_, std::string("IK"));
   pnh_.param("execute_trajectory", execute_trajectory_, true);
+  pnh_.param("constraint_type", constraint_type_, 1);
 }
 
 void TeleopVisualization::selectGroup(const std::string& group) {
@@ -142,6 +144,8 @@ void TeleopVisualization::generateTeleopPlan(const std::string& name) {
     req.verbose = false;
     collision_detection::CollisionResult res;
     planning_scene_->checkCollision(req, res, ksgv->getGoalState());
+    const collision_detection::CollisionWorld::ObjectConstPtr& octomap_object = planning_scene_->getCollisionWorld()->getObject(planning_scene::OCTOMAP_NS);
+    if(res.collision) collision_detection::refineContactNormals(octomap_object, res, false);
     collision_visualization_->drawCollisions(res, planning_scene_->getPlanningFrame());
   }
 
@@ -241,7 +245,7 @@ void TeleopVisualization::createTeleopStep(const std::string& name) {
                                                                                                        .001, .001));
     //ROS_INFO_STREAM("Constraints are: \n" << req.motion_plan_request.goal_constraints[0]);
 
-    req.motion_plan_request.num_planning_attempts = 1;
+    req.motion_plan_request.num_planning_attempts = constraint_type_;
     req.motion_plan_request.allowed_planning_time = ros::Duration(teleop_period_*2);
 
     // Manually define what planner to use - DTC
