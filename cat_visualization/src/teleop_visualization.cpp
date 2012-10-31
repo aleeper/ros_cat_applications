@@ -144,7 +144,7 @@ void TeleopVisualization::generateTeleopPlan(const std::string& name) {
     req.verbose = false;
     collision_detection::CollisionResult res;
     planning_scene_->checkCollision(req, res, ksgv->getGoalState());
-    const collision_detection::CollisionWorld::ObjectConstPtr& octomap_object = planning_scene_->getCollisionWorld()->getObject(planning_scene::OCTOMAP_NS);
+    const collision_detection::CollisionWorld::ObjectConstPtr& octomap_object = planning_scene_->getCollisionWorld()->getObject(planning_scene::PLanningScene::OCTOMAP_NS);
     if(res.collision) collision_detection::refineContactNormals(octomap_object, res, false);
     collision_visualization_->drawCollisions(res, planning_scene_->getPlanningFrame());
   }
