@@ -19,11 +19,14 @@
 # otherwise mandatory if you want to use the 3d cursor plugin below.
 
 # Rviz and friends
-- git: {local-name: interactive_markers, uri: 'https://github.com/ros-visualization/interactive_markers.git', version: groovy-devel}
-- git: {local-name: rviz, uri: 'https://github.com/ros-visualization/rviz.git', version: groovy-devel}
+- git: {local-name: interactive_markers, uri: 'https://github.com/ros-visualization/interactive_markers.git', version: 753c05a9b605518e59f2b66bbd47c766d6500dba}
+- git: {local-name: rviz, uri: 'https://github.com/ros-interactive-manipulation/rviz.git', version: fuerte-compat}
+#- git: {local-name: rviz, uri: 'https://github.com/ros-visualization/rviz.git', version: groovy-devel}
 # if that won't build for you, you can use my fork:
 #- git: {local-name: rviz, uri: 'https://github.com/aleeper/rviz.git', version: cursor_3d}
 - git: {local-name: rviz_view_controllers, uri: 'https://github.com/ros-visualization/rviz_view_controllers.git', version: master}
+
+- svn: {local-name: chai3d_a4, uri: 'http://jks-ros-pkg.googlecode.com/svn/trunk/3rd_party_libs/chai3d_a4'}
 
 # aleeper's interaction tools
 - git: {local-name: ros-3d-interaction-cursor, uri: 'https://github.com/aleeper/ros-3d-interaction-cursor.git', version: master}
