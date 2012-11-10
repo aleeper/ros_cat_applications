@@ -1,15 +1,23 @@
+- other: {local-name: /opt/ros/fuerte/share/ros}
+- other: {local-name: /opt/ros/fuerte/share}
+- other: {local-name: /opt/ros/fuerte/stacks}
+- setup-file: {local-name: /opt/ros/fuerte/setup.sh}
+
 # aleeper's CAT stuff
-- git: {local-name: ros-cat-planning, uri: 'https://github.com/aleeper/ros-cat-planning.git', version: master}
-- git: {local-name: ros-cat-applications, uri: 'https://github.com/aleeper/ros-cat-applications.git', version: master}
+- git: {local-name: ros-cat-planning, uri: 'https://github.com/aleeper/ros-cat-planning.git', version: fuerte-devel}
+- git: {local-name: ros-cat-applications, uri: 'https://github.com/aleeper/ros-cat-applications.git', version: fuerte-devel}
+# aleeper's interaction tools
+- git: {local-name: ros-3d-interaction-cursor, uri: 'https://github.com/aleeper/ros-3d-interaction-cursor.git', version: fuerte-devel}
+- git: {local-name: razer-hydra-ros, uri: 'https://github.com/aleeper/razer-hydra-ros.git', version: fuerte-devel}
 
 # Comment out this stuff if you already have it in your path elsewhere:
-
 # MoveIt!
 - git: {local-name: moveit_core, uri: 'https://github.com/ros-planning/moveit-core.git', version: fuerte-devel}
 - git: {local-name: moveit_planners, uri: 'https://github.com/ros-planning/moveit-planners.git', version: fuerte-devel}
+#- git: {local-name: moveit_ros, uri: 'https://github.com/aleeper/moveit-ros.git', version: frontend_separation}
 - git: {local-name: moveit_ros, uri: 'https://github.com/ros-planning/moveit-ros.git', version: fuerte-devel}
-# - git: {local-name: moveit_msgs, uri: 'https://github.com/ros-planning/moveit-msgs.git', version: fuerte-devel}
-- git: {local-name: moveit_manipulation, uri: 'https://github.com/ros-planning/moveit-manipulation.git', version: fuerte-devel}
+- git: {local-name: moveit_setup_assistant, uri: 'https://github.com/ros-planning/moveit-setup-assistant.git', version: fuerte-devel}
+- git: {local-name: moveit_msgs, uri: 'https://github.com/ros-planning/moveit-msgs.git', version: fuerte-devel}
 - git: {local-name: moveit_experimental, uri: 'https://github.com/ros-planning/moveit-experimental.git', version: fuerte-devel}
 - git: {local-name: moveit_pr2, uri: 'https://github.com/ros-planning/moveit-pr2.git', version: fuerte-devel}
 - git: {local-name: moveit_docs, uri: 'https://github.com/ros-planning/moveit-docs.git', version: fuerte-devel}
@@ -19,16 +27,15 @@
 # otherwise mandatory if you want to use the 3d cursor plugin below.
 
 # Rviz and friends
-- git: {local-name: interactive_markers, uri: 'https://github.com/ros-visualization/interactive_markers.git', version: 753c05a9b605518e59f2b66bbd47c766d6500dba}
+#- git: {local-name: interactive_markers, uri: 'https://github.com/ros-visualization/interactive_markers.git', version: 753c05a9b605518e59f2b66bbd47c766d6500dba }
+- git: {local-name: interactive_markers, uri: 'https://github.com/ros-visualization/interactive_markers.git', version: 66a8b9f57e96542ea5c2cd7dad3610448f2a1ba8 }
 - git: {local-name: rviz, uri: 'https://github.com/ros-interactive-manipulation/rviz.git', version: fuerte-compat}
-#- git: {local-name: rviz, uri: 'https://github.com/ros-visualization/rviz.git', version: groovy-devel}
+#- git: {local-name: interactive_markers, uri: 'https://github.com/ros-visualization/interactive_markers.git', version: fuerte-devel}
+#- git: {local-name: rviz, uri: 'https://github.com/ros-visualization/rviz.git', version: fuerte-devel}
+- git: {local-name: rviz_animated_view_controller, uri: 'https://github.com/aleeper/rviz_animated_view_controller.git', version: fuerte-devel}
+
 # if that won't build for you, you can use my fork:
 #- git: {local-name: rviz, uri: 'https://github.com/aleeper/rviz.git', version: cursor_3d}
-- git: {local-name: rviz_view_controllers, uri: 'https://github.com/ros-visualization/rviz_view_controllers.git', version: master}
 
+# Unfortunately, need chai3d to build anything until I figure out how to build the dependent stuff as plugins.
 - svn: {local-name: chai3d_a4, uri: 'http://jks-ros-pkg.googlecode.com/svn/trunk/3rd_party_libs/chai3d_a4'}
-
-# aleeper's interaction tools
-- git: {local-name: ros-3d-interaction-cursor, uri: 'https://github.com/aleeper/ros-3d-interaction-cursor.git', version: master}
-- git: {local-name: razer-hydra-ros, uri: 'https://github.com/aleeper/razer-hydra-ros.git', version: master}
-
