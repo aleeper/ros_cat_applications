@@ -2,7 +2,7 @@
 #define _CAT_ABSTRACT_HANDLE_H_
 
 #include <cat_user_entity/tf_scenegraph_object.h>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Geometry>
 
 namespace something {
 

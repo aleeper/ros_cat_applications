@@ -3,7 +3,7 @@
 #include <razer_hydra/Hydra.h>
 
 #include <tf/tf.h>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Geometry>
 #include <ros/ros.h>
 
 

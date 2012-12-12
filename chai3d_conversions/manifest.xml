@@ -1,0 +1,16 @@
+<package>
+  <description brief="chai3d_conversions">
+
+     chai3d_conversions
+
+  </description>
+  <author>Adam Leeper</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/chai3d_conversions</url>
+  <depend package="geometry_msgs"/>
+  <depend package="tf"/>
+
+</package>
+
+

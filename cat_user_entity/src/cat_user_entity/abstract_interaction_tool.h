@@ -8,7 +8,7 @@
 #include <interaction_cursor_msgs/InteractionCursorFeedback.h>
 
 
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Geometry>
 
 namespace something {
 

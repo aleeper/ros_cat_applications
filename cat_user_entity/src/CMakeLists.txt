@@ -1,5 +1,4 @@
 
-add_subdirectory(chai3d_conversions)
 add_subdirectory(cat_user_entity)
 
 rosbuild_add_executable(user_test
@@ -8,5 +7,4 @@ rosbuild_add_executable(user_test
 
 target_link_libraries(user_test
 cat_user_entity
-chai3d_conversions
 )

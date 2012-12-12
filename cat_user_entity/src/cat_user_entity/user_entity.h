@@ -6,7 +6,7 @@
 #include <cat_user_entity/manipulator_node.h>
 
 #include <ros/ros.h>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Geometry>
 
 namespace something {
 

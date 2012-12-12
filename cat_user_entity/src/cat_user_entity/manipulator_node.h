@@ -3,11 +3,11 @@
 #define _CAT_MANIPULATOR_NODE_H_
 
 #include <cat_user_entity/abstract_interaction_tool.h>
-#include <cat_user_entity/haptic_interaction_tool.h>
+//#include <cat_user_entity/haptic_interaction_tool.h>
 #include <cat_user_entity/hydra_interaction_tool.h>
 #include <cat_user_entity/tf_scenegraph_object.h>
 
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Geometry>
 
 
 namespace something {
@@ -65,7 +65,7 @@ public:
     }
     case(HAPTIC):
     {
-      tool_ = new something::HapticInteractionTool(transform_.child_frame_id_ + "_device", tfl_, tfb_);
+      //tool_ = new something::HapticInteractionTool(transform_.child_frame_id_ + "_device", tfl_, tfb_);
       break;
     }
     case(INTERACTIVE_MARKER):

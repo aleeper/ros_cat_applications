@@ -11,7 +11,7 @@ camera_node.cpp
 manipulator_node.cpp
 user_entity.cpp
 abstract_interaction_tool.cpp
-haptic_interaction_tool.cpp
+#haptic_interaction_tool.cpp
 hydra_interaction_tool.cpp
 
 )
