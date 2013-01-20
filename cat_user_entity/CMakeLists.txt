@@ -26,7 +26,6 @@ catkin_package(
    INCLUDE_DIRS src
    LIBRARIES cat_user_entity
    CATKIN_DEPENDS geometry_msgs interaction_cursor_msgs razer_hydra roscpp std_msgs tf
-#  DEPENDS system_lib
 )
 
 ###########

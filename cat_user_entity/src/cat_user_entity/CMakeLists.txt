@@ -1,7 +1,6 @@
-set(CAT_LIB_NAME cat_user_entity)
+include_directories(.)
 
-
-add_library(${CAT_LIB_NAME}
+add_library(${PROJECT_NAME}
   abstract_handle.cpp
   tf_scenegraph_object.cpp
   camera_node.cpp
@@ -12,9 +11,12 @@ add_library(${CAT_LIB_NAME}
   hydra_interaction_tool.cpp
 )
 
-add_dependencies(${CAT_LIB_NAME} interaction_cursor_msgs)
+add_dependencies(${PROJECT_NAME} interaction_cursor_msgs)
 
-target_link_libraries(${CAT_LIB_NAME}
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
