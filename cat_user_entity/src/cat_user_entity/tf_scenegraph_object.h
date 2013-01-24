@@ -9,6 +9,8 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PoseStamped.h>
 
+#include <boost/shared_ptr.hpp>
+
 #include <ros/ros.h>
 
 
@@ -85,6 +87,9 @@ protected:
   bool visible_;
 
 };
+
+typedef boost::shared_ptr<SceneGraphNode> SceneGraphNodePtr;
+typedef boost::shared_ptr<const SceneGraphNode> SceneGraphNodeConstPtr;
 
 
 }  // namespace something

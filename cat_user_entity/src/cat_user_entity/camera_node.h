@@ -18,19 +18,9 @@ class CameraNode: public tf::SceneGraphNode {
 public:
   // Methods only!
 
-  // Constructor
-    CameraNode(const std::string &frame_id,
-               tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
-      : SceneGraphNode(frame_id, tfl, tfb)
-    {
-        init();
-    }
+  CameraNode(const std::string &frame_id, tf::TransformListener *tfl, tf::TransformBroadcaster *tfb);
 
-    void init()
-    {
-
-    }
-
+  virtual void init();
 
 
 protected:

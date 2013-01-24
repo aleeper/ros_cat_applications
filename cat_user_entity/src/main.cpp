@@ -60,30 +60,34 @@ int main(int argc, char** argv)
     user->setQuaternion(tf::createQuaternionFromYaw(M_PI));
     ros::Duration(1.0).sleep();
 
-    int ch;
-    changemode(1);
+    ros::spin();
 
-    while(true)
-    {
-        if(kbhit())
-        {
-            ch = getchar();
+    return 0;
+//    int ch;
+//    changemode(1);
 
-            //printf("\nGot %c\n", ch);
+//    while(ros::ok())
+//    {
+//      ROS_INFO("Loop!");
+//      if(kbhit())
+//      {
+//        ROS_INFO("Getting character");
+//        ch = getchar();
 
-            if(ch == 'q')
-            {
-                printf("\nGot shutdown request!\n");
-                break;
-            }
-        }
-        if(!ros::ok()) break;
-        ros::spinOnce();
-    }
-    changemode(0);
-    printf("Deleting user...\n");
-    delete user;
-    printf("Done! Exiting...\n");
+//        //printf("\nGot %c\n", ch);
+
+//        if(ch == 'q')
+//        {
+//            printf("\nGot shutdown request!\n");
+//            break;
+//        }
+//      }
+//      ros::spinOnce();
+//    }
+//    changemode(0);
+//    printf("Deleting user...\n");
+//    delete user;
+//    printf("Done! Exiting...\n");
 }
 
 // --------------------------------------------------

@@ -7,6 +7,7 @@
 
 #include <ros/ros.h>
 #include <eigen3/Eigen/Geometry>
+#include <boost/shared_ptr.hpp>
 
 namespace something {
 
@@ -22,76 +23,18 @@ public:
   // Methods only!
 
   // Constructor
-  // Must be defined in the header due to library issues in CHAI3D.
   UserEntity(const std::string& tf_parent_frame_id, const std::string& frame_prefix,
-             tf::TransformListener* tfl, tf::TransformBroadcaster* tfb, ros::Publisher* pub_markers)
-    : SceneGraphNode(frame_prefix + "frame", tfl, tfb, pub_markers),
-      right_(0),
-      left_(0),
-      view_(0),
-      prefix_(frame_prefix),
-      grabbing_(false)
-  {
-    ros::NodeHandle nh;
-    ros::NodeHandle pnh("~");
-    double period = 0.01;
-    pnh.param("period", period, 0.01);
-    std::string device = "";
-    pnh.param("device", device, std::string("hydra"));
-
-    update_timer_ = nh.createTimer(ros::Duration(period), boost::bind(&UserEntity::update, this));
-    changeParentFrameId(tf_parent_frame_id);
-
-    init(device);
-  }
+             tf::TransformListener* tfl, tf::TransformBroadcaster* tfb, ros::Publisher* pub_markers);
 
   virtual ~UserEntity();
 
-  // Must be defined in the header due to library issues in CHAI3D.
-  void init(const std::string &device)
-  {
-    printf("Initializing user entity!\n");
-
-    view_ = new something::CameraNode(prefix_ + "camera", tfl_, tfb_);
-    view_->setPosition(tf::Vector3(-1.5, 0, 0.5)); // default
-    addChild(view_);
-
-    if(device == "haptic")
-    {
-      view_->setPosition(tf::Vector3(-1, 0, 0));
-      right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HAPTIC);
-      right_->setPosition(tf::Vector3(0, 0, 0));
-      addChild(right_);
-    }
-    else if(device == "hydra")
-    {
-      view_->setPosition(tf::Vector3(-1.5, 0, 0.5));
-
-      right_ = new something::ManipulatorNode(prefix_ + "right_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_RIGHT);
-      right_->setPosition(tf::Vector3(0, 0, 0));
-      addChild(right_);
-
-      left_ =  new something::ManipulatorNode(prefix_ + "left_workspace", tfl_, tfb_, something::ManipulatorNode::HYDRA_LEFT);
-      left_->setPosition(tf::Vector3(0, 0, 0));
-      addChild(left_);
-    }
-
-
-
-    grab_start_world_to_handle_.setIdentity();
-
-    //printChildren(true);
-    ROS_INFO("Done! Here we go...");
-  }
+  void init(const std::string &device);
 
   void attachCoupling();
 
   void update();
 
   void changeParentFrameId(const std::string &parent_id);
-
-  // Moves the ENTIRE user entity
-  //void moveUserViewFrame();
 
   bool getGrabState();
 

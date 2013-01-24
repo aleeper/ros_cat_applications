@@ -21,81 +21,49 @@ class AbstractInteractionTool: public tf::SceneGraphNode{
 public:
   // Methods only!
 
-  // Constructor
-    // Constructor
-      AbstractInteractionTool(const std::string &frame_id,
-                 tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
-          : SceneGraphNode(frame_id, tfl, tfb),
-            handle_(0),
-            last_tool_force_(tf::Vector3(0,0,0)),
-            last_tool_torque_(tf::Vector3(0,0,0)),
-            attached_(false),
-            k_linear_(0),
-            k_angular_(0)
-    {
-        init();
-    }
+  AbstractInteractionTool(const std::string &frame_id, tf::TransformListener *tfl, tf::TransformBroadcaster *tfb);
 
-    virtual ~AbstractInteractionTool()
-    {
-          if(handle_) delete handle_;
-    }
+  virtual ~AbstractInteractionTool();
 
-    void init()
-    {
-        handle_ = new something::AbstractHandle(transform_.child_frame_id_ + "_handle", tfl_, tfb_);
-        addChild(handle_);
-        handle_->setVisible(false, true);
+  virtual void init();
 
-        ros::NodeHandle nh;
-        std::string side = "";
-        if(transform_.child_frame_id_.find("right") != std::string::npos) side = "_right";
-        else if(transform_.child_frame_id_.find("left") != std::string::npos) side = "_left";
-
-        std::string base_topic = std::string("interaction_cursor") + side;
-        subscribe_cursor_ = nh.subscribe<interaction_cursor_msgs::InteractionCursorFeedback>(base_topic + "/feedback", 10,
-                                           boost::bind( &AbstractInteractionTool::receiveInteractionCursorFeedback, this, _1 ) );
-        publish_cursor_ = nh.advertise<interaction_cursor_msgs::InteractionCursorUpdate>(base_topic + "/update", 10);
-    }
+  const something::AbstractHandle* getHandle()
+  {
+      return handle_;
+  }
 
 
-    const something::AbstractHandle* getHandle()
-    {
-        return handle_;
-    }
+  // Read the state of the binary switches on the tool.
+  bool getToolButtonState(const unsigned int &index) const
+  {
+    if(index >= getToolButtonCount()) return false;
+    //if(attached_) ROS_INFO("Currently attached, lieing to parent.");
+    return button_state_[index] && !attached_;
+  }
 
+  // Get the number of buttons available on the tool.
+  unsigned int getToolButtonCount() const
+  {
+    return (unsigned int)button_state_.size();
+  }
 
-    // Read the state of the binary switches on the tool.
-    bool getToolButtonState(const unsigned int &index) const
-    {
-        if(index >= getToolButtonCount()) return false;
-        //if(attached_) ROS_INFO("Currently attached, lieing to parent.");
-        return button_state_[index] && !attached_;
-    }
+  // Set the force applied to the tool
+  virtual void setToolForce(const Vector3 &force)           { last_tool_force_ = force; }
 
-    // Get the number of buttons available on the tool.
-    unsigned int getToolButtonCount() const
-    {
-        return (unsigned int)button_state_.size();
-    }
+  // Set the torque applied to the tool
+  virtual void setToolTorque(const Vector3 &torque)         { last_tool_torque_ = torque; }
 
-    // Set the force applied to the tool
-    virtual void setToolForce(const Vector3 &force)           { last_tool_force_ = force; }
-
-    // Set the torque applied to the tool
-    virtual void setToolTorque(const Vector3 &torque)         { last_tool_torque_ = torque; }
-
-    // Set the force and torque applied to the tool
-    virtual void setToolForceAndTorque(const Vector3 &force, const Vector3 &torque) { setToolForce(force); setToolTorque(torque); }
+  // Set the force and torque applied to the tool
+  virtual void setToolForceAndTorque(const Vector3 &force, const Vector3 &torque) { setToolForce(force); setToolTorque(torque); }
 
 //    // Set the gripper force on the tool
 //    virtual void setToolGripperForce(const float &force);
 
-    virtual void attachHandleToTfFrame(const std::string& attached_frame_id, const tf::Pose& attached_frame_pose)
-    {
-      attached_frame_id_ = attached_frame_id;
-      attached_frame_T_grasp_ = attached_frame_pose;
-    }
+  virtual void attachHandleToTfFrame(const std::string& attached_frame_id, const tf::Pose& attached_frame_pose)
+  {
+    attached_frame_id_ = attached_frame_id;
+    attached_frame_T_grasp_ = attached_frame_pose;
+  }
 
     virtual void timerUpdate();
 
@@ -103,31 +71,31 @@ public:
 protected: 
 // Methods
 
-    virtual void receiveInteractionCursorFeedback(const interaction_cursor_msgs::InteractionCursorFeedbackConstPtr& icf_cptr);
+  virtual void receiveInteractionCursorFeedback(const interaction_cursor_msgs::InteractionCursorFeedbackConstPtr& icf_cptr);
 
-    // Used to initialize the button storage
-    virtual void setToolButtonCount(const unsigned int &count)
+  // Used to initialize the button storage
+  virtual void setToolButtonCount(const unsigned int &count)
+  {
+    ROS_INFO("Setting tool button count to %d", count);
+    button_state_.resize(count, false);
+    button_transition_.resize(count, LOW);
+  }
+
+  virtual void setToolButtonState(const size_t &index, const bool &state)
+  {
+    if(index >= button_state_.size())
     {
-      ROS_INFO("Setting tool button count to %d", count);
-      button_state_.resize(count, false);
-      button_transition_.resize(count, LOW);
+      ROS_ERROR("Can't set button %zd state, max size is %zd", index, button_state_.size());
+      return;
     }
+    button_state_[index] = state;
+  }
 
-    virtual void setToolButtonState(const size_t &index, const bool &state)
-    {
-        if(index >= button_state_.size())
-        {
-            ROS_ERROR("Can't set button %zd state, max size is %zd", index, button_state_.size());
-            return;
-        }
-        button_state_[index] = state;
-    }
+  virtual void updateVirtualCoupling();
 
-    virtual void updateVirtualCoupling();
+  virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action);
 
-    virtual void drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action);
-
-    virtual void recordButtonTransitions();
+  virtual void recordButtonTransitions();
 
 //    virtual void updateDevice()
 //    {

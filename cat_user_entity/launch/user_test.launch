@@ -3,7 +3,7 @@
   <arg name="period" default="0.02" />
   <arg name="start_hydra" default="true" />
   <arg name="device" default="hydra" />
-  <arg name="radius" default="3.0" />
+  <arg name="radius" default="2.5" />
 
   <include if="$(arg start_hydra)" file="$(find razer_hydra)/hydra.launch" >
   </include>

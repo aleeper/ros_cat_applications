@@ -3,6 +3,44 @@
 
 namespace something {
 
+// Constructor
+AbstractInteractionTool::AbstractInteractionTool(const std::string &frame_id,
+         tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
+  : SceneGraphNode(frame_id, tfl, tfb),
+    handle_(0),
+    last_tool_force_(tf::Vector3(0,0,0)),
+    last_tool_torque_(tf::Vector3(0,0,0)),
+    attached_(false),
+    k_linear_(0),
+    k_angular_(0)
+{
+  init();
+}
+
+
+AbstractInteractionTool::~AbstractInteractionTool()
+{
+  if(handle_) delete handle_;
+}
+
+void AbstractInteractionTool::init()
+{
+  handle_ = new something::AbstractHandle(transform_.child_frame_id_ + "_handle", tfl_, tfb_);
+  addChild(handle_);
+  handle_->setVisible(false, true);
+
+  ros::NodeHandle nh;
+  std::string side = "";
+  if(transform_.child_frame_id_.find("right") != std::string::npos) side = "_right";
+  else if(transform_.child_frame_id_.find("left") != std::string::npos) side = "_left";
+
+  std::string base_topic = std::string("interaction_cursor") + side;
+  subscribe_cursor_ = nh.subscribe<interaction_cursor_msgs::InteractionCursorFeedback>(base_topic + "/feedback", 10,
+                                     boost::bind( &AbstractInteractionTool::receiveInteractionCursorFeedback, this, _1 ) );
+  publish_cursor_ = nh.advertise<interaction_cursor_msgs::InteractionCursorUpdate>(base_topic + "/update", 10);
+}
+
+
 void AbstractInteractionTool::timerUpdate()
 {
   recordButtonTransitions();

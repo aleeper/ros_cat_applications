@@ -11,6 +11,17 @@
 namespace something {
 
 
+HydraInteractionTool::HydraInteractionTool(const std::string &frame_id, tf::TransformListener *tfl,
+                     tf::TransformBroadcaster *tfb, PaddleSide side)
+: AbstractInteractionTool(frame_id, tfl, tfb),
+  workspace_radius_(0.5),
+  paddle_side_(side),
+  paddle_index_(0)
+{
+  // Finish other intialization stuff.
+  init();
+}
+
 HydraInteractionTool::~HydraInteractionTool()
 {
 }
@@ -22,21 +33,21 @@ void HydraInteractionTool::init()
 //    setPosition(tf::Vector3(pos.x(), pos.y(), pos.z()));
 //    setQuaternion(tf::createQuaternionFromYaw(M_PI)*tf::createQuaternionFromRPY(0, 0.4, 0));
 
-    ros::NodeHandle nh;
-    hydra_sub_ = nh.subscribe<razer_hydra::Hydra>("hydra_calib", 1, boost::bind(&HydraInteractionTool::updateFromMsg, this, _1));
+  ros::NodeHandle nh;
+  hydra_sub_ = nh.subscribe<razer_hydra::Hydra>("hydra_calib", 1, boost::bind(&HydraInteractionTool::updateFromMsg, this, _1));
 
-    setToolButtonCount(7);
-    // TODO this should come from a config file!
-    button_name_map_["click"] = 0;
-    button_name_map_["menu"] = 1;
+  setToolButtonCount(7);
+  // TODO this should come from a config file!
+  button_name_map_["click"] = 0;
+  button_name_map_["menu"] = 1;
 
-    k_linear_ = 1;
-    k_angular_ = 1;
+  k_linear_ = 1;
+  k_angular_ = 1;
 
-    ros::NodeHandle pnh("~");
-    pnh.param<double>("hydra_workspace_radius", workspace_radius_, 1.0);
+  ros::NodeHandle pnh("~");
+  pnh.param<double>("hydra_workspace_radius", workspace_radius_, 1.0);
 
-    updatePaddleIndex();
+  updatePaddleIndex();
 }
 
 void HydraInteractionTool::setPaddleSide(HydraInteractionTool::PaddleSide side)
@@ -57,23 +68,23 @@ void HydraInteractionTool::updatePaddleIndex()
 
 void HydraInteractionTool::updateFromMsg(const razer_hydra::HydraConstPtr &calib)
 {
-    ROS_DEBUG_NAMED("hydra", "Got hydra update!");
+  ROS_DEBUG_NAMED("hydra", "Got hydra update!");
 
-    razer_hydra::HydraPaddle paddle = calib->paddles[paddle_index_];
+  razer_hydra::HydraPaddle paddle = calib->paddles[paddle_index_];
 
-    // Update pose info
-    tf::Transform interaction_handle;
-    tf::transformMsgToTF(paddle.transform, interaction_handle);
-    interaction_handle.setOrigin(interaction_handle.getOrigin()*workspace_radius_);
-    handle_->setTransform(interaction_handle);
+  // Update pose info
+  tf::Transform interaction_handle;
+  tf::transformMsgToTF(paddle.transform, interaction_handle);
+  interaction_handle.setOrigin(interaction_handle.getOrigin()*workspace_radius_);
+  handle_->setTransform(interaction_handle);
 
-    // Update button info
-    if(getToolButtonCount() != paddle.buttons.size())
-        setToolButtonCount(paddle.buttons.size());
-    for(size_t i = 0; i < getToolButtonCount(); ++i)
-    {
-        setToolButtonState(i, paddle.buttons[i]);
-    }
+  // Update button info
+  if(getToolButtonCount() != paddle.buttons.size())
+      setToolButtonCount(paddle.buttons.size());
+  for(size_t i = 0; i < getToolButtonCount(); ++i)
+  {
+      setToolButtonState(i, paddle.buttons[i]);
+  }
 }
 
 

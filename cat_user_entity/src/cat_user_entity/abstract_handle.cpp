@@ -4,6 +4,25 @@
 
 namespace something {
 
+// Constructor
+AbstractHandle::AbstractHandle(const std::string &frame_id, tf::TransformListener *tfl, tf::TransformBroadcaster *tfb)
+  : SceneGraphNode(frame_id, tfl, tfb)
+{
+  init();
+}
+
+AbstractHandle::~AbstractHandle()
+{
+
+}
+
+void AbstractHandle::init()
+{
+//  handle_ = new something::AbstractHandle(transform_.child_frame_id_ + "_handle", tfl_, tfb_);
+//  addChild(handle_);
+}
+
+
 void AbstractHandle::drawSelf(const ros::Time now, visualization_msgs::MarkerArray& array, int action)
 {
   // add markers handle
