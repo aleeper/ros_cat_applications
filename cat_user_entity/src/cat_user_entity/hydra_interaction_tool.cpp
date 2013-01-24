@@ -33,6 +33,9 @@ void HydraInteractionTool::init()
     k_linear_ = 1;
     k_angular_ = 1;
 
+    ros::NodeHandle pnh("~");
+    pnh.param<double>("hydra_workspace_radius", workspace_radius_, 1.0);
+
     updatePaddleIndex();
 }
 
@@ -61,7 +64,7 @@ void HydraInteractionTool::updateFromMsg(const razer_hydra::HydraConstPtr &calib
     // Update pose info
     tf::Transform interaction_handle;
     tf::transformMsgToTF(paddle.transform, interaction_handle);
-    interaction_handle.setOrigin(interaction_handle.getOrigin()*1.0);
+    interaction_handle.setOrigin(interaction_handle.getOrigin()*workspace_radius_);
     handle_->setTransform(interaction_handle);
 
     // Update button info

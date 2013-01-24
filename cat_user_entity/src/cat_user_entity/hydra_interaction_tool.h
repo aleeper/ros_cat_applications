@@ -46,7 +46,7 @@ protected:
     void updateFromMsg(const razer_hydra::HydraConstPtr &calib);
 
 // Members
-    float workspace_radius_;
+    double workspace_radius_;
     ros::Subscriber hydra_sub_;
 
     PaddleSide paddle_side_;
