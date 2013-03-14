@@ -72,7 +72,7 @@ void AbstractInteractionTool::timerUpdate()
 
   updateVirtualCoupling();
 
-  ROS_INFO("At end of timerUpdate, attached_frame_id_ = [%s], attached_ = [%d]", attached_frame_id_.c_str(), attached_);
+  //ROS_DEBUG("At end of timerUpdate, attached_frame_id_ = [%s], attached_ = [%d]", attached_frame_id_.c_str(), attached_);
   publish_cursor_.publish(update);
 }
 
