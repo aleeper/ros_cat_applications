@@ -36,10 +36,19 @@ void HydraInteractionTool::init()
   ros::NodeHandle nh;
   hydra_sub_ = nh.subscribe<razer_hydra::Hydra>("hydra_calib", 1, boost::bind(&HydraInteractionTool::updateFromMsg, this, _1));
 
-  setToolButtonCount(7);
   // TODO this should come from a config file!
-  button_name_map_["click"] = 0;
-  button_name_map_["menu"] = 1;
+  //button_name_map_["click"] = 7 + 0;
+
+  button_name_map_["key_enter"] = 3;
+  button_name_map_["key_esc"]   = 1;
+  button_name_map_["menu"]      = 6;
+  button_name_map_["click"]     = 7 + 0;
+  button_name_map_["key_right"] = 7 + 1;
+  button_name_map_["key_left"]  = 7 + 2;
+  button_name_map_["key_up"]    = 7 + 3;
+  button_name_map_["key_down"]  = 7 + 4;
+
+  setToolButtonCount(7 + 4 + 1);
 
   k_linear_ = 1;
   k_angular_ = 1;
@@ -78,13 +87,21 @@ void HydraInteractionTool::updateFromMsg(const razer_hydra::HydraConstPtr &calib
   interaction_handle.setOrigin(interaction_handle.getOrigin()*workspace_radius_);
   handle_->setTransform(interaction_handle);
 
-  // Update button info
-  if(getToolButtonCount() != paddle.buttons.size())
-      setToolButtonCount(paddle.buttons.size());
-  for(size_t i = 0; i < getToolButtonCount(); ++i)
+
+//  if(getToolButtonCount() < paddle.buttons.size())
+//      setToolButtonCount(paddle.buttons.size());
+
+  // Update the actual buttons
+  for(size_t i = 0; i < 7; ++i)
   {
-      setToolButtonState(i, paddle.buttons[i]);
+    setToolButtonState(i, paddle.buttons[i]);
   }
+  // Magic number!
+  setToolButtonState(7 + 0, paddle.trigger > 0.9);
+  setToolButtonState(7 + 1, paddle.joy[0] >  0.8);
+  setToolButtonState(7 + 2, paddle.joy[0] < -0.8);
+  setToolButtonState(7 + 3, paddle.joy[1] >  0.8);
+  setToolButtonState(7 + 4, paddle.joy[1] < -0.8);
 }
 
 

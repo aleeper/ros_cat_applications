@@ -52,7 +52,7 @@ void AbstractInteractionTool::timerUpdate()
   update.pose.header.stamp = handle_->getTransform().stamp_;
 
   // process buttons
-  if(button_transition_[button_name_map_["click"]] == HIGH)        update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::KEEP_ALIVE;
+  if(button_transition_[button_name_map_["click"]] == HIGH) update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::KEEP_ALIVE;
   if(button_transition_[button_name_map_["click"]] == LOW_TO_HIGH)
   {
     if(attached_frame_id_ != "")
@@ -68,7 +68,17 @@ void AbstractInteractionTool::timerUpdate()
   }
   if(button_transition_[button_name_map_["click"]] == HIGH_TO_LOW) update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::RELEASE;
   if(button_transition_[button_name_map_["click"]] == LOW)         update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::NONE;
+
   if(button_transition_[button_name_map_["menu"]] == LOW_TO_HIGH)  update.button_state = interaction_cursor_msgs::InteractionCursorUpdate::QUERY_MENU;
+
+  if(button_transition_[button_name_map_["key_up"]]    == LOW_TO_HIGH) update.key_event = interaction_cursor_msgs::InteractionCursorUpdate::KEY_UP;
+  if(button_transition_[button_name_map_["key_down"]]  == LOW_TO_HIGH) update.key_event = interaction_cursor_msgs::InteractionCursorUpdate::KEY_DOWN;
+  if(button_transition_[button_name_map_["key_left"]]  == LOW_TO_HIGH) update.key_event = interaction_cursor_msgs::InteractionCursorUpdate::KEY_LEFT;
+  if(button_transition_[button_name_map_["key_right"]] == LOW_TO_HIGH) update.key_event = interaction_cursor_msgs::InteractionCursorUpdate::KEY_RIGHT;
+  if(button_transition_[button_name_map_["key_enter"]] == LOW_TO_HIGH) update.key_event = interaction_cursor_msgs::InteractionCursorUpdate::KEY_ENTER;
+  if(button_transition_[button_name_map_["key_esc"]]   == LOW_TO_HIGH) update.key_event = interaction_cursor_msgs::InteractionCursorUpdate::KEY_ESCAPE;
+
+  //update.key_event =
 
   updateVirtualCoupling();
 
@@ -210,8 +220,11 @@ void AbstractInteractionTool::receiveInteractionCursorFeedback(const interaction
     // Do nothing?
     break;
   case interaction_cursor_msgs::InteractionCursorFeedback::RELEASED:
+      ROS_INFO("Received RELEASED feedback!");
+      attached_ = false;
+      break;
   case interaction_cursor_msgs::InteractionCursorFeedback::LOST_GRASP:
-    ROS_INFO("Received RELEASED or LOST_GRASP feedback!");
+    ROS_WARN("Received LOST_GRASP feedback!");
     attached_ = false;
     break;
   default:
